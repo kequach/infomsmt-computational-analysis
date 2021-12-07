@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from scipy.stats import sem
+
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOauthError
 from spotipy.client import SpotifyException
 
@@ -69,6 +71,14 @@ def main():
             plt.ylabel('Frequency')
             plt.savefig('../plots/{0}.png'.format(feature))
             plt.close()
+
+            print('{}: M = {:.2f}, SD = {:.2f}, SE = {:.2f}'.format(
+                feature.capitalize(),
+                track_features_df[feature].mean(),
+                track_features_df[feature].std(),
+                sem(track_features_df[feature])
+            )
+            )
 
 
 ################################################################################
