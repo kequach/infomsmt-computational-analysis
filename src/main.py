@@ -44,7 +44,10 @@ def main():
     tracks = []
 
     username, spotify = authenticate_user()
-    tracks = list_playlists(spotify, username)
+    # tracks = list_playlists(spotify, username)
+
+    # Get tracks by owner and id instead of listing user's playlists
+    tracks = get_tracks_by_owner_and_id(spotify, 'Spotify', '37i9dQZF1DX7qK8ma5wgG1')
 
     if tracks:
         track_features_map = get_audio_features(spotify, tracks, pretty_print=True)
@@ -53,7 +56,9 @@ def main():
         track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
 
         # Generate histogram per feature
-        features = ['tempo', 'time_signature', 'key', 'mode', 'loudness', 'energy', 'danceability', 'instrumentalness', 'liveness', 'speechiness', 'valence']
+        features = ['tempo', 'time_signature', 'key', 'mode', 'loudness', 'energy', 'danceability', 'instrumentalness',
+                    'liveness', 'speechiness', 'valence']
+
         for feature in features:
             plt.figure()
             plt.style.use('seaborn-whitegrid')  # nice and clean grid
@@ -63,6 +68,7 @@ def main():
             plt.ylabel('Frequency')
             plt.savefig('../plots/{0}.png'.format(feature))
             plt.close()
+
 
 ################################################################################
 # API Fetch Functions
@@ -132,6 +138,26 @@ def list_playlists(spotify, username):
     # The API paginates the results, so we need to keep fetching until we have all of the items
     while len(tracks) < total:
         tracks_response = spotify.user_playlist_tracks(playlist_owner, playlist.get('id'), offset=len(tracks))
+        tracks.extend(tracks_response.get('items', []))
+        total = tracks_response.get('total')
+
+    # Pull out the actual track objects since they're nested weird
+    tracks = [track.get('track') for track in tracks]
+
+    return tracks
+
+
+def get_tracks_by_owner_and_id(spotify, playlist_owner, playlist_id):
+    """
+    Get all of a user's playlists and have them select tracks from a playlist
+    """
+    # Get the playlist tracks
+    tracks = []
+    total = 1
+
+    # The API paginates the results, so we need to keep fetching until we have all of the items
+    while len(tracks) < total:
+        tracks_response = spotify.user_playlist_tracks(playlist_owner, playlist_id, offset=len(tracks))
         tracks.extend(tracks_response.get('items', []))
         total = tracks_response.get('total')
 
