@@ -5,7 +5,7 @@ import spotipy
 import spotipy.util as sp_util
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOauthError
 from spotipy.client import SpotifyException
-
+from dotenv import load_dotenv
 
 # Define the scopes that we need access to
 # https://developer.spotify.com/web-api/using-scopes/
@@ -39,6 +39,7 @@ def authenticate_user():
     """
     # Prompt the user for their username
     username = input('\nWhat is your Spotify username: ')
+    load_dotenv()
 
     try:
         # Get an auth token for this user
