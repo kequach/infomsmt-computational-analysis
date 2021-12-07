@@ -2,7 +2,9 @@
 
 env/
 venv/
+
 plots/*
+!plots/.gitkeep
 
 
 .idea
