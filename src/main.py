@@ -3,6 +3,11 @@ import os
 import json
 import spotipy
 import spotipy.util as sp_util
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOauthError
 from spotipy.client import SpotifyException
 
@@ -44,6 +49,20 @@ def main():
     if tracks:
         track_features_map = get_audio_features(spotify, tracks, pretty_print=True)
 
+        # Convert nested dictionary to data frame
+        track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
+
+        # Generate histogram per feature
+        features = ['tempo', 'time_signature', 'key', 'mode', 'loudness', 'energy', 'danceability', 'instrumentalness', 'liveness', 'speechiness', 'valence']
+        for feature in features:
+            plt.figure()
+            plt.style.use('seaborn-whitegrid')  # nice and clean grid
+            plt.hist(track_features_df[feature], bins=30, facecolor='#2ab0ff', edgecolor='#169acf', linewidth=0.5)
+            plt.title('Histogram - {0}'.format(feature.capitalize()))
+            plt.xlabel(feature.capitalize())
+            plt.ylabel('Frequency')
+            plt.savefig('../plots/{0}.png'.format(feature))
+            plt.close()
 
 ################################################################################
 # API Fetch Functions
