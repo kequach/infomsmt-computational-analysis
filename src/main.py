@@ -32,14 +32,14 @@ scope = 'user-library-read playlist-read-private'
 
 
 ################################################################################
-# Main Demo Function
+# Main Function
 ################################################################################
 
 def main():
     """
     Our main function that will get run when the program executes
     """
-    print_header('Spotify Web API - Computational Analysis', length=50)
+    print_header('Spotify Web API - Computational Analysis')
     spotify = None
     tracks = []
 
@@ -50,7 +50,7 @@ def main():
     tracks = get_tracks_by_owner_and_id(spotify, 'Spotify', '37i9dQZF1DX7qK8ma5wgG1')
 
     if tracks:
-        track_features_map = get_audio_features(spotify, tracks, pretty_print=True)
+        track_features_map = get_audio_features(spotify, tracks, pretty_print=False)
 
         # Convert nested dictionary to data frame
         track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
@@ -62,44 +62,13 @@ def main():
         for feature in features:
             plt.figure()
             plt.style.use('seaborn-whitegrid')  # nice and clean grid
-            plt.hist(track_features_df[feature], bins=30, facecolor='#2ab0ff', edgecolor='#169acf', linewidth=0.5)
+            plt.hist(track_features_df[feature], bins=30, facecolor='#2ab0ff', edgecolor='#169acf')
+            plt.axvline(track_features_df[feature].mean(), color='k', linestyle='dashed')
             plt.title('Histogram - {0}'.format(feature.capitalize()))
             plt.xlabel(feature.capitalize())
             plt.ylabel('Frequency')
             plt.savefig('../plots/{0}.png'.format(feature))
             plt.close()
-
-
-################################################################################
-# API Fetch Functions
-################################################################################
-
-def get_audio_features(spotify, tracks, pretty_print=False):
-    """
-    Given a list of tracks, get and print the audio features for those tracks!
-    :param spotify: An authenticated Spotipy instance
-    :param tracks: A list of track dictionaries
-    """
-    if not tracks:
-        print('No tracks provided.')
-        return
-
-    # Build a map of id->track so we can get the full track info later
-    track_map = {track.get('id'): track for track in tracks}
-
-    # Request the audio features for the chosen tracks (limited to 50)
-    print_header('Getting Audio Features...')
-    tracks_features_response = spotify.audio_features(tracks=track_map.keys())
-    track_features_map = {f.get('id'): f for f in tracks_features_response}
-
-    # Iterate through the features and print the track and info
-    if pretty_print:
-        for track_id, track_features in track_features_map.items():
-            # Print out the track info and audio features
-            track = track_map.get(track_id)
-            print_audio_features_for_track(track, track_features)
-
-    return track_features_map
 
 
 ################################################################################
@@ -149,8 +118,10 @@ def list_playlists(spotify, username):
 
 def get_tracks_by_owner_and_id(spotify, playlist_owner, playlist_id):
     """
-    Get all of a user's playlists and have them select tracks from a playlist
+    Get tracks by playlist owner and id
     """
+    print_header('Playlist Owner: {0}\nPlaylist ID: {1}'.format(playlist_owner, playlist_id))
+
     # Get the playlist tracks
     tracks = []
     total = 1
@@ -165,6 +136,34 @@ def get_tracks_by_owner_and_id(spotify, playlist_owner, playlist_id):
     tracks = [track.get('track') for track in tracks]
 
     return tracks
+
+
+def get_audio_features(spotify, tracks, pretty_print=False):
+    """
+    Given a list of tracks, get and print the audio features for those tracks!
+    :param spotify: An authenticated Spotipy instance
+    :param tracks: A list of track dictionaries
+    """
+    if not tracks:
+        print('No tracks provided.')
+        return
+
+    # Build a map of id->track so we can get the full track info later
+    track_map = {track.get('id'): track for track in tracks}
+
+    # Request the audio features for the chosen tracks (limited to 50)
+    print_header('Getting Audio Features')
+    tracks_features_response = spotify.audio_features(tracks=track_map.keys())
+    track_features_map = {f.get('id'): f for f in tracks_features_response}
+
+    # Iterate through the features and print the track and info
+    if pretty_print:
+        for track_id, track_features in track_features_map.items():
+            # Print out the track info and audio features
+            track = track_map.get(track_id)
+            print_audio_features_for_track(track, track_features)
+
+    return track_features_map
 
 
 if __name__ == '__main__':
