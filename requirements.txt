@@ -1,2 +1,6 @@
 spotipy
 ipdb
+matplotlib
+python-dotenv
+numpy
+pandas
