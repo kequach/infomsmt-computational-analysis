@@ -123,8 +123,4 @@ def list_playlists(spotify, username):
 
 
 if __name__ == '__main__':
-    os.environ["SPOTIPY_CLIENT_ID"] = "8d0a5699034242008341d2221f54d18d"
-    os.environ["SPOTIPY_CLIENT_SECRET"] = "601df8175315490daa312bb61b216368"
-    os.environ["SPOTIPY_REDIRECT_URI"] = "http://localhost/"
-
     main()
