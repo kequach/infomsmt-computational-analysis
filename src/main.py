@@ -44,13 +44,12 @@ def main():
     print_header('Spotify Web API - Computational Analysis')
     spotify = None
     tracks = []
-    features = ['tempo', 'time_signature', 'key', 'mode', 'loudness', 'energy', 'danceability', 'instrumentalness',
+    desired_features = ['tempo', 'time_signature', 'key', 'mode', 'loudness', 'energy', 'danceability', 'instrumentalness',
                 'liveness', 'speechiness', 'valence']
 
     username, spotify = authenticate_user()
 
     # Get tracks by playlist owner and id
-
     # Sad Songs by Spotify, 1,3 million likes -> 37i9dQZF1DX7qK8ma5wgG1
     # SMT Special Songs by Jakub, 15 likes -> 5XnTgCWRtlcKweUSvEWJAE
     tracks = get_tracks_by_owner_and_id(spotify, 'Spotify', '37i9dQZF1DX7qK8ma5wgG1')
@@ -60,62 +59,20 @@ def main():
         track_features_map = get_audio_features(spotify, tracks, pretty_print=False)
 
         # Create plots
-        create_plots(track_features_map, features)
+        create_plots(track_features_map, desired_features)
 
         # Calculate statistics
-        calculate_statistics(track_features_map, features)
+        calculate_statistics(track_features_map, desired_features)
 
 
 ################################################################################
 # Functions
 ################################################################################
-
-def list_playlists(spotify, username):
-    """
-    Get all of a user's playlists and have them select tracks from a playlist
-    """
-    # Get all the playlists for this user
-    playlists = []
-    total = 1
-    # The API paginates the results, so we need to iterate
-    while len(playlists) < total:
-        playlists_response = spotify.user_playlists(username, offset=len(playlists))
-        playlists.extend(playlists_response.get('items', []))
-        total = playlists_response.get('total')
-
-    # Remove any playlists that we don't own
-    playlists = [playlist for playlist in playlists if playlist.get('owner', {}).get('id') == username]
-
-    # List out all of the playlists
-    print_header('Your Playlists')
-    for i, playlist in enumerate(playlists):
-        print('  {}) {} - {}'.format(i + 1, playlist.get('name'), playlist.get('uri')))
-
-    # Choose a playlist
-    playlist_choice = int(input('\nChoose a playlist: '))
-    playlist = playlists[playlist_choice - 1]
-    playlist_owner = playlist.get('owner', {}).get('id')
-
-    # Get the playlist tracks
-    tracks = []
-    total = 1
-    # The API paginates the results, so we need to keep fetching until we have all of the items
-    while len(tracks) < total:
-        tracks_response = spotify.user_playlist_tracks(playlist_owner, playlist.get('id'), offset=len(tracks))
-        tracks.extend(tracks_response.get('items', []))
-        total = tracks_response.get('total')
-
-    # Pull out the actual track objects since they're nested weird
-    tracks = [track.get('track') for track in tracks]
-
-    return tracks
-
-
 def get_tracks_by_owner_and_id(spotify, playlist_owner, playlist_id):
     """
     Get tracks by playlist owner and id
     """
-    print_header('Playlist Owner: {0}\nPlaylist ID: {1}'.format(playlist_owner, playlist_id))
+    print_header('Get tracks by playlist owner and id\nplaylist_owner: {0}\nplaylist_id: {1}'.format(playlist_owner, playlist_id))
 
     # Get the playlist tracks
     tracks = []
@@ -147,7 +104,7 @@ def get_audio_features(spotify, tracks, pretty_print=False):
     track_map = {track.get('id'): track for track in tracks}
 
     # Request the audio features for the chosen tracks (limited to 50)
-    print_header('Getting Audio Features')
+    print_header('Get Audio Features')
     tracks_features_response = spotify.audio_features(tracks=track_map.keys())
     track_features_map = {f.get('id'): f for f in tracks_features_response}
 
@@ -161,26 +118,28 @@ def get_audio_features(spotify, tracks, pretty_print=False):
     return track_features_map
 
 
-def create_plots(track_features_map, features):
+def create_plots(track_features_map, desired_features):
     """
     Create plots
     """
+    print_header('Create plots')
+
     # Convert nested dictionary to data frame
     track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
 
-    for feature in features:
+    for desired_feature in desired_features:
         plt.figure()
         plt.style.use('seaborn-whitegrid')  # nice and clean grid
-        plt.hist(track_features_df[feature], bins=30, facecolor='#2ab0ff', edgecolor='#169acf')
-        plt.axvline(track_features_df[feature].mean(), color='k', linestyle='dashed')
-        plt.title('Histogram - {0}'.format(feature.capitalize()))
-        plt.xlabel(feature.capitalize())
+        plt.hist(track_features_df[desired_feature], bins=30, facecolor='#2ab0ff', edgecolor='#169acf')
+        plt.axvline(track_features_df[desired_feature].mean(), color='k', linestyle='dashed')
+        plt.title('Histogram - {0}'.format(desired_feature.capitalize()))
+        plt.xlabel(desired_feature.capitalize())
         plt.ylabel('Frequency')
-        plt.savefig('../plots/{0}.png'.format(feature))
+        plt.savefig('../plots/{0}.png'.format(desired_feature))
         plt.close()
 
 
-def calculate_statistics(track_features_map, features):
+def calculate_statistics(track_features_map, desired_features):
     """
     Calculate statistics
     """
@@ -188,12 +147,12 @@ def calculate_statistics(track_features_map, features):
 
     # Convert nested dictionary to data frame
     track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
-    for feature in features:
+    for desired_feature in desired_features:
         print('{}: M = {:.2f}, SD = {:.2f}, SE = {:.2f}'.format(
-            feature.capitalize(),
-            track_features_df[feature].mean(),
-            track_features_df[feature].std(),
-            sem(track_features_df[feature])
+            desired_feature.capitalize(),
+            track_features_df[desired_feature].mean(),
+            track_features_df[desired_feature].std(),
+            sem(track_features_df[desired_feature])
         )
         )
 
