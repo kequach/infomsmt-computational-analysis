@@ -44,41 +44,26 @@ def main():
     print_header('Spotify Web API - Computational Analysis')
     spotify = None
     tracks = []
+    features = ['tempo', 'time_signature', 'key', 'mode', 'loudness', 'energy', 'danceability', 'instrumentalness',
+                'liveness', 'speechiness', 'valence']
 
     username, spotify = authenticate_user()
-    # tracks = list_playlists(spotify, username)
 
-    # Get tracks by owner and id instead of listing user's playlists
+    # Get tracks by playlist owner and id
+
+    # Sad Songs by Spotify, 1,3 million likes -> 37i9dQZF1DX7qK8ma5wgG1
+    # SMT Special Songs by Jakub, 15 likes -> 5XnTgCWRtlcKweUSvEWJAE
     tracks = get_tracks_by_owner_and_id(spotify, 'Spotify', '37i9dQZF1DX7qK8ma5wgG1')
 
     if tracks:
+        # Get high level audio feature information
         track_features_map = get_audio_features(spotify, tracks, pretty_print=False)
 
-        # Convert nested dictionary to data frame
-        track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
+        # Create plots
+        create_plots(track_features_map, features)
 
-        # Generate histogram per feature
-        features = ['tempo', 'time_signature', 'key', 'mode', 'loudness', 'energy', 'danceability', 'instrumentalness',
-                    'liveness', 'speechiness', 'valence']
-
-        for feature in features:
-            plt.figure()
-            plt.style.use('seaborn-whitegrid')  # nice and clean grid
-            plt.hist(track_features_df[feature], bins=30, facecolor='#2ab0ff', edgecolor='#169acf')
-            plt.axvline(track_features_df[feature].mean(), color='k', linestyle='dashed')
-            plt.title('Histogram - {0}'.format(feature.capitalize()))
-            plt.xlabel(feature.capitalize())
-            plt.ylabel('Frequency')
-            plt.savefig('../plots/{0}.png'.format(feature))
-            plt.close()
-
-            print('{}: M = {:.2f}, SD = {:.2f}, SE = {:.2f}'.format(
-                feature.capitalize(),
-                track_features_df[feature].mean(),
-                track_features_df[feature].std(),
-                sem(track_features_df[feature])
-            )
-            )
+        # Calculate statistics
+        calculate_statistics(track_features_map, features)
 
 
 ################################################################################
@@ -174,6 +159,43 @@ def get_audio_features(spotify, tracks, pretty_print=False):
             print_audio_features_for_track(track, track_features)
 
     return track_features_map
+
+
+def create_plots(track_features_map, features):
+    """
+    Create plots
+    """
+    # Convert nested dictionary to data frame
+    track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
+
+    for feature in features:
+        plt.figure()
+        plt.style.use('seaborn-whitegrid')  # nice and clean grid
+        plt.hist(track_features_df[feature], bins=30, facecolor='#2ab0ff', edgecolor='#169acf')
+        plt.axvline(track_features_df[feature].mean(), color='k', linestyle='dashed')
+        plt.title('Histogram - {0}'.format(feature.capitalize()))
+        plt.xlabel(feature.capitalize())
+        plt.ylabel('Frequency')
+        plt.savefig('../plots/{0}.png'.format(feature))
+        plt.close()
+
+
+def calculate_statistics(track_features_map, features):
+    """
+    Calculate statistics
+    """
+    print_header('Calculate statistics')
+
+    # Convert nested dictionary to data frame
+    track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
+    for feature in features:
+        print('{}: M = {:.2f}, SD = {:.2f}, SE = {:.2f}'.format(
+            feature.capitalize(),
+            track_features_df[feature].mean(),
+            track_features_df[feature].std(),
+            sem(track_features_df[feature])
+        )
+        )
 
 
 if __name__ == '__main__':
