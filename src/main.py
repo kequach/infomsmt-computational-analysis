@@ -50,9 +50,12 @@ def main():
     username, spotify = authenticate_user()
 
     # Get tracks by playlist owner and id
+    # Beast Mode by Spotify, 8,5 million likes -> 37i9dQZF1DX76Wlfdnj7AP
+    # Mode Booster by Spotify, 5,9 million likes -> 37i9dQZF1DX3rxVfibe1L0
+    # Happy Hits by Spotify, 5,7 million likes -> 37i9dQZF1DXdPec7aLTmlC
     # Sad Songs by Spotify, 1,3 million likes -> 37i9dQZF1DX7qK8ma5wgG1
     # SMT Special Songs by Jakub, 15 likes -> 5XnTgCWRtlcKweUSvEWJAE
-    tracks = get_tracks_by_owner_and_id(spotify, 'Spotify', '37i9dQZF1DX7qK8ma5wgG1')
+    tracks = get_tracks_by_owner_and_id(spotify, None, '37i9dQZF1DX3rxVfibe1L0')
 
     if tracks:
         # Get high level audio feature information
