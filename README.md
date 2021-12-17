@@ -1,4 +1,4 @@
-- [Getting Started with the Spotify Web API using Python](#getting-started-with-the-spotify-web-api-using-python)
+- [SMT project: Music recommendation and analysis](#smt-project-music-recommendation-and-analysis)
       - [The Spotify Web API](#the-spotify-web-api)
       - [Spotipy](#spotipy)
   - [Setup](#setup)
@@ -7,7 +7,7 @@
   - [Running](#running)
       - [Example Run](#example-run)
 
-# Getting Started with the Spotify Web API using Python
+# SMT project: Music recommendation and analysis
 This repo contains the code for the Sound and Music Technology Project in 2021 for group 2.
 TODO: Add more info
 
