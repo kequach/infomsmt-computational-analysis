@@ -10,3 +10,4 @@ plots/*
 
 .cache-*
 .env
+src/.cache
