@@ -21,8 +21,13 @@ def authenticate_client():
     :return: An authenticated Spotipy instance
     """
     try:
+        load_dotenv()
+        
+        client_id = os.environ.get("SPOTIPY_CLIENT_ID")
+        client_secret = os.environ.get("SPOTIPY_CLIENT_SECRET")
         # Get an auth token for this user
-        client_credentials = SpotifyClientCredentials()
+        client_credentials = SpotifyClientCredentials(client_id=client_id,
+                                                           client_secret=client_secret)
 
         spotify = spotipy.Spotify(client_credentials_manager=client_credentials)
         return spotify
@@ -30,40 +35,6 @@ def authenticate_client():
         print('API credentials not set.  Please see README for instructions on setting credentials.')
         sys.exit(1)
 
-
-def authenticate_user():
-    """
-    Prompt the user for their username and authenticate them against the Spotify API.
-    (NOTE: You will have to paste the URL from your browser back into the terminal)
-    :return: (username, spotify) Where username is the user's username and spotify is an authenticated spotify (spotipy) client
-    """
-    # Prompt the user for their username
-    username = input('\nWhat is your Spotify username: ')
-    load_dotenv()
-
-    try:
-        # Get an auth token for this user
-        token = sp_util.prompt_for_user_token(username, scope=scope)
-
-        spotify = spotipy.Spotify(auth=token)
-        return username, spotify
-    except SpotifyException as e:
-        print('API credentials not set.  Please see README for instructions on setting credentials.')
-        sys.exit(1)
-    except SpotifyOauthError as e:
-        redirect_uri = os.environ.get('SPOTIPY_REDIRECT_URI')
-        if redirect_uri is not None:
-            print("""
-    Uh oh! It doesn't look like that URI was registered as a redirect URI for your application.
-    Please check to make sure that "{}" is listed as a Redirect URI and then Try again.'
-            """.format(redirect_uri))
-        else:
-            print("""
-    Uh oh! It doesn't look like you set a redirect URI for your application.  Please add
-    export SPOTIPY_REDIRECT_URI='http://localhost/'
-    to your `credentials.sh`, and then add "http://localhost/" as a Redirect URI in your Spotify Application page.
-    Once that's done, try again.'""")
-        sys.exit(1)
 
 ################################################################################
 # Fetcher Functions

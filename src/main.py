@@ -1,12 +1,14 @@
 import sys
 import os
 import json
+import argparse
 import spotipy
 import spotipy.util as sp_util
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy.stats import ttest_ind
 
 from scipy.stats import sem
 
@@ -23,7 +25,6 @@ from display_utils import (
 
 from common import (
     authenticate_client,
-    authenticate_user,
     fetch_artists,
     fetch_artist_top_tracks
 )
@@ -47,7 +48,11 @@ def main():
     desired_features = ['tempo', 'time_signature', 'key', 'mode', 'loudness', 'energy', 'danceability', 'instrumentalness',
                 'liveness', 'speechiness', 'valence']
 
-    username, spotify = authenticate_user()
+    spotify = authenticate_client()
+
+    df = parse_input_file()
+    happy_ids = get_playlist_ids(df, "happy")
+    neutral_ids = get_playlist_ids(df, "neutral")
 
     # Get tracks by playlist owner and id
     # Beast Mode by Spotify, 8,5 million likes -> 37i9dQZF1DX76Wlfdnj7AP
@@ -55,22 +60,62 @@ def main():
     # Happy Hits by Spotify, 5,7 million likes -> 37i9dQZF1DXdPec7aLTmlC
     # Sad Songs by Spotify, 1,3 million likes -> 37i9dQZF1DX7qK8ma5wgG1
     # SMT Special Songs by Jakub, 15 likes -> 5XnTgCWRtlcKweUSvEWJAE
-    tracks = get_tracks_by_owner_and_id(spotify, None, '37i9dQZF1DX3rxVfibe1L0')
+    # tracks = get_tracks_by_owner_and_id(spotify, None, '37i9dQZF1DX76Wlfdnj7AP')
 
-    if tracks:
-        # Get high level audio feature information
-        track_features_map = get_audio_features(spotify, tracks, pretty_print=False)
+    tracks_happy = get_tracks_from_list_of_playlists(spotify, happy_ids)
+    tracks_neutral = get_tracks_from_list_of_playlists(spotify, neutral_ids)
 
-        # Create plots
-        create_plots(track_features_map, desired_features)
+    # Get high level audio feature information
+    track_happy_features_map = get_audio_features_large(spotify, tracks_happy)
+    track_neutral_features_map = get_audio_features_large(spotify, tracks_neutral)
+    # track_features_map = get_audio_features(spotify, tracks_happy, pretty_print=False)
 
-        # Calculate statistics
-        calculate_statistics(track_features_map, desired_features)
+    # Create plots
+    create_plots(track_happy_features_map, desired_features)
+
+    # Calculate statistics
+    calculate_statistics(track_happy_features_map, desired_features)
+    calculate_statistics(track_neutral_features_map, desired_features)
+
+
+    happy_df = pd.DataFrame.from_dict(track_happy_features_map, orient='index')
+    neutral_df = pd.DataFrame.from_dict(track_neutral_features_map, orient='index')
+    t_test(happy_df, neutral_df, "valence")
 
 
 ################################################################################
 # Functions
 ################################################################################
+def parse_input_file():
+    # Initiate the parser
+    parser = argparse.ArgumentParser()
+
+    # Add arguments to be parsed
+    parser.add_argument("--input",
+                        "-i",
+                        help="The path to the file with playlists",
+                        default="../playlists.csv")
+    # Read arguments from the command line
+    args = parser.parse_args()
+    df = read_input_file(args.input)
+    return df
+
+def get_playlist_ids(df, category):
+    df_filtered = df.loc[df['category'] == category] 
+    ids = set([url.split("/")[-1] for url in df_filtered["link"]])
+    return ids
+
+def get_tracks_from_list_of_playlists(spotify, playlist_ids):
+    tracks = []
+    for id in playlist_ids:
+        tracks.extend(get_tracks_by_owner_and_id(spotify, None, id))
+
+    # filter out duplicates
+    set_of_jsons = {json.dumps(d, sort_keys=True) for d in tracks}
+    tracks = [json.loads(t) for t in set_of_jsons]
+    print(f"Total number of tracks retrieved: {len(tracks)}")
+    return tracks
+
 def get_tracks_by_owner_and_id(spotify, playlist_owner, playlist_id):
     """
     Get tracks by playlist owner and id
@@ -92,6 +137,13 @@ def get_tracks_by_owner_and_id(spotify, playlist_owner, playlist_id):
 
     return tracks
 
+def get_audio_features_large(spotify, tracks, chunk_size = 100):
+    track_features_map = {}
+    for i in range(0, len(tracks), chunk_size):
+        chunk = tracks[i:i+chunk_size]
+        # process chunk of size <= chunk_size
+        track_features_map.update(get_audio_features(spotify, chunk, pretty_print=False))
+    return track_features_map
 
 def get_audio_features(spotify, tracks, pretty_print=False):
     """
@@ -158,6 +210,27 @@ def calculate_statistics(track_features_map, desired_features):
             sem(track_features_df[desired_feature])
         )
         )
+
+def t_test(df_one, df_two, col_name):
+    print_header('Calculate t-test')
+    t, p = ttest_ind(df_one[col_name], df_two[col_name], equal_var=False)
+    print(f"ttest for {col_name}: t = {t}  p = {p}")
+    return(t,p)
+
+def read_input_file(file_path):
+    """reads in the input file through Pandas
+
+    Args:
+        file_path (string): path to the file
+
+    Returns:
+        DataFrame
+    """
+    if "xlsx" in file_path:
+        file = pd.read_excel(file_path, engine='openpyxl')
+    else:
+        file = pd.read_csv(file_path)
+    return file
 
 
 if __name__ == '__main__':
