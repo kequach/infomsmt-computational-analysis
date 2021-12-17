@@ -1,6 +1,6 @@
 - [Getting Started with the Spotify Web API using Python](#getting-started-with-the-spotify-web-api-using-python)
       - [The Spotify Web API](#the-spotify-web-api)
-      - [Spotipy ([github](https://github.com/plamere/spotipy))](#spotipy-github)
+      - [Spotipy](#spotipy)
   - [Setup](#setup)
       - [Register Your Application With Spotify](#register-your-application-with-spotify)
       - [Install Dependencies](#install-dependencies)
@@ -12,7 +12,7 @@ This repo contains the code for the Sound and Music Technology Project in 2021 f
 TODO: Add more info
 
 
-#### [The Spotify Web API](https://developer.spotify.com/web-api/)
+#### The Spotify Web API
 The Spotify Web API allows applications to fetch lots of awesome data from the Spotify catalog, as well as manage
 a user's playlists and saved music.  Some examples of of info you get are:
   - Track, artist, album, and playlist metadata and search
@@ -21,7 +21,7 @@ a user's playlists and saved music.  Some examples of of info you get are:
   - Featured playlists and new releases
   - Music recommendations based on seed data
 
-#### [Spotipy](http://spotipy.readthedocs.io/en/latest/) ([github](https://github.com/plamere/spotipy))
+#### Spotipy
 Spotipy is an awesome lightweight Python wrapper library for the Spotify Web API.  Using Spotipy, you can get any information
 that you can get through the raw Web API.  The library does a bunch of the heavy lifting for things like authenticating
 against the API, serializing request data, and deserialzing response data.
