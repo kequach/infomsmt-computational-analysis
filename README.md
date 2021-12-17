@@ -58,7 +58,7 @@ To run the project, navigate to the src folder and execute the following from th
 python main.py
 ```
 
-You need to provide a .csv file. See following example:
+You need to provide a playlists.csv file. See following example:
 ```
 playlist_name,link,category
 Mood Booster,https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0,happy
@@ -67,6 +67,11 @@ Happy Hits!,https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC,happy
 Beast Mode, https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP,neutral
 ```
 Only link and category are needed. You can leave the playlist_name empty.
+
+It is also possible to use other .csv or .xlsx files. Here is an example. You need to specify the file name on the command line:
+```
+python main.py --input ../other_file_name.csv
+```
 
 #### Example Run
 TODO: Update example run when complete
