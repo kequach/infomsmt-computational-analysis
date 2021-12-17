@@ -44,7 +44,6 @@ def main():
     """
     print_header('Spotify Web API - Computational Analysis')
     spotify = None
-    tracks = []
     desired_features = ['tempo', 'time_signature', 'key', 'mode', 'loudness', 'energy', 'danceability', 'instrumentalness',
                 'liveness', 'speechiness', 'valence']
 
