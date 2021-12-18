@@ -1,13 +1,11 @@
 *.pyc
+.idea
 
 env/
 venv/
+.env
+
+src/.cache
 
 plots/*
 !plots/.gitkeep
-
-.idea
-
-.cache*
-src/.cache
-.env
