@@ -9,4 +9,5 @@ plots/*
 .idea
 
 .cache*
+src/.cache
 .env
