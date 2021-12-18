@@ -141,8 +141,8 @@ def create_histogram(track_features_map, desired_feature):
 
     plt.figure()
     plt.style.use('seaborn-whitegrid')  # nice and clean grid
-    plt.hist(track_features_df[desired_feature], bins=30, facecolor='#2ab0ff', edgecolor='#169acf')
-    plt.axvline(track_features_df[desired_feature].mean(), color='k', linestyle='dashed')
+    plt.hist(track_features_df[desired_feature], bins=30, facecolor='#1DB954', edgecolor='#191414')
+    plt.axvline(track_features_df[desired_feature].mean(), color='#191414', linestyle='dashed')
     plt.title(f'Histogram - {desired_feature.capitalize()}')
     plt.xlabel(desired_feature.capitalize())
     plt.ylabel('Frequency')
