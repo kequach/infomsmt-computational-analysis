@@ -7,7 +7,7 @@
 # 2/3/2018
 import json
 
-def print_header(message, length=30):
+def print_header(message, length=50):
     """
     Given a message, print it with a buncha stars all header-like
     :param message: The message you want to print
