@@ -134,15 +134,14 @@ def get_audio_features(spotify, tracks, pretty_print=False):
 
 def create_histogram(track_features_map_happy, track_features_map_running, track_features_map_studying,
                      desired_feature):
-    print_header(f'Create histogram: {desired_feature.capitalize()}')
-
     # Convert nested dictionary to data frame
     track_features_df_happy = pd.DataFrame.from_dict(track_features_map_happy, orient='index')
     track_features_df_running = pd.DataFrame.from_dict(track_features_map_running, orient='index')
     track_features_df_studying = pd.DataFrame.from_dict(track_features_map_studying, orient='index')
 
+    # Create figure with nice clean grid
     plt.figure()
-    plt.style.use('seaborn-whitegrid')  # nice and clean grid
+    plt.style.use('seaborn-whitegrid')
 
     # Plot histograms per category
     plt.hist(track_features_df_happy[desired_feature], bins=30, alpha=0.5, label="Happiness", facecolor='#1DB954',
@@ -159,9 +158,13 @@ def create_histogram(track_features_map_happy, track_features_map_running, track
 
     # Plot descriptions
     plt.title(f'Histogram - {desired_feature.capitalize()}')
-    plt.xlabel(desired_feature.capitalize())
+    plt.xlabel(desired_feature.capitalize()
+               .replace('Tempo', 'Tempo (BPM)')
+               .replace('Loudness', 'Loudness (dB)'))
     plt.ylabel('Frequency')
-    plt.legend(loc='best')
+
+    # Add legend at best fit
+    plt.legend()
 
     # Save figure
     plt.savefig(f'../plots/{desired_feature}.png', bbox_inches='tight')
