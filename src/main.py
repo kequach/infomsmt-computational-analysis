@@ -1,7 +1,6 @@
 import json
 import argparse
 
-
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.stats import (
@@ -30,8 +29,7 @@ scope = 'user-library-read playlist-read-private'
 def main():
     print_header('Spotify Web API - Computational Analysis')
 
-    desired_features = ['tempo', 'time_signature', 'key', 'mode', 'loudness', 'energy', 'danceability',
-                        'instrumentalness', 'liveness', 'speechiness', 'valence']
+    desired_features = ['tempo', 'loudness', 'energy', 'danceability', 'speechiness', 'valence']
 
     spotify = authenticate_client()
 
@@ -60,8 +58,9 @@ def main():
         t_test(track_features_map_happy, track_features_map_running, desired_feature)
         t_test(track_features_map_happy, track_features_map_studying, desired_feature)
 
-        # Create plots
-        create_histogram(track_features_map_happy, desired_feature)
+        # Create plots per desired feature
+        create_histogram(track_features_map_happy, track_features_map_running, track_features_map_studying,
+                         desired_feature)
 
 
 ################################################################################
@@ -133,20 +132,39 @@ def get_audio_features(spotify, tracks, pretty_print=False):
     return track_features_map
 
 
-def create_histogram(track_features_map, desired_feature):
+def create_histogram(track_features_map_happy, track_features_map_running, track_features_map_studying,
+                     desired_feature):
     print_header(f'Create histogram: {desired_feature.capitalize()}')
 
     # Convert nested dictionary to data frame
-    track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
+    track_features_df_happy = pd.DataFrame.from_dict(track_features_map_happy, orient='index')
+    track_features_df_running = pd.DataFrame.from_dict(track_features_map_running, orient='index')
+    track_features_df_studying = pd.DataFrame.from_dict(track_features_map_studying, orient='index')
 
     plt.figure()
     plt.style.use('seaborn-whitegrid')  # nice and clean grid
-    plt.hist(track_features_df[desired_feature], bins=30, facecolor='#1DB954', edgecolor='#191414')
-    plt.axvline(track_features_df[desired_feature].mean(), color='#191414', linestyle='dashed')
+
+    # Plot histograms per category
+    plt.hist(track_features_df_happy[desired_feature], bins=30, alpha=0.5, label="Happiness", facecolor='#1DB954',
+             edgecolor='#191414')
+    plt.hist(track_features_df_running[desired_feature], bins=30, alpha=0.5, label="Running", facecolor='#FC7E00',
+             edgecolor='#191414')
+    plt.hist(track_features_df_studying[desired_feature], bins=30, alpha=0.5, label="Studying", facecolor='#009FFF',
+             edgecolor='#191414')
+
+    # Plot dashed line for average
+    plt.axvline(track_features_df_happy[desired_feature].mean(), color='#1DB954', linestyle='dashed')
+    plt.axvline(track_features_df_running[desired_feature].mean(), color='#FC7E00', linestyle='dashed')
+    plt.axvline(track_features_df_studying[desired_feature].mean(), color='#009FFF', linestyle='dashed')
+
+    # Plot descriptions
     plt.title(f'Histogram - {desired_feature.capitalize()}')
     plt.xlabel(desired_feature.capitalize())
     plt.ylabel('Frequency')
-    plt.savefig(f'../plots/{desired_feature}.png')
+    plt.legend(loc='best')
+
+    # Save figure
+    plt.savefig(f'../plots/{desired_feature}.png', bbox_inches='tight')
     plt.close()
 
 
