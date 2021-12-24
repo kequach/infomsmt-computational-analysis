@@ -50,13 +50,13 @@ def main():
 
     for desired_feature in desired_features:
         # Calculate descriptive statistics
-        calculate_descriptive_statistics(track_features_map_happy, desired_feature)
-        calculate_descriptive_statistics(track_features_map_running, desired_feature)
-        calculate_descriptive_statistics(track_features_map_studying, desired_feature)
+        calculate_descriptive_statistics(track_features_map_happy, desired_feature, "happy")
+        calculate_descriptive_statistics(track_features_map_running, desired_feature, "running")
+        calculate_descriptive_statistics(track_features_map_studying, desired_feature, "studying")
 
         # Perform t-test
-        t_test(track_features_map_happy, track_features_map_running, desired_feature)
-        t_test(track_features_map_happy, track_features_map_studying, desired_feature)
+        t_test(track_features_map_happy, track_features_map_running, desired_feature, "running")
+        t_test(track_features_map_happy, track_features_map_studying, desired_feature, "studying")
 
         # Create plots per desired feature
         create_histogram(track_features_map_happy, track_features_map_running, track_features_map_studying,
@@ -171,8 +171,8 @@ def create_histogram(track_features_map_happy, track_features_map_running, track
     plt.close()
 
 
-def calculate_descriptive_statistics(track_features_map, desired_feature):
-    print_header(f'Descriptive statistics: {desired_feature.capitalize()}')
+def calculate_descriptive_statistics(track_features_map, desired_feature, group):
+    print_header(f'Descriptive statistics for {group}: {desired_feature.capitalize()}')
 
     # Convert nested dictionary to data frame
     track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
@@ -181,8 +181,8 @@ def calculate_descriptive_statistics(track_features_map, desired_feature):
           f'SE = {sem(track_features_df[desired_feature]):.2f}')
 
 
-def t_test(track_features_map_one, track_features_map_two, desired_feature):
-    print_header(f't-test: {desired_feature.capitalize()}')
+def t_test(track_features_map_one, track_features_map_two, desired_feature, group):
+    print_header(f't-test: {desired_feature.capitalize()}, comparison to {group}')
 
     track_features_df_one = pd.DataFrame.from_dict(track_features_map_one, orient='index')
     track_features_df_two = pd.DataFrame.from_dict(track_features_map_two, orient='index')
