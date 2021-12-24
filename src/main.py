@@ -48,20 +48,24 @@ def main():
     track_features_map_running = get_audio_features_in_chunks(spotify, tracks_running)
     track_features_map_studying = get_audio_features_in_chunks(spotify, tracks_studying)
 
+    statistics_list = []
+    t_test_list = []
     for desired_feature in desired_features:
         # Calculate descriptive statistics
-        calculate_descriptive_statistics(track_features_map_happy, desired_feature, "happy")
-        calculate_descriptive_statistics(track_features_map_running, desired_feature, "running")
-        calculate_descriptive_statistics(track_features_map_studying, desired_feature, "studying")
+        statistics_list.append(calculate_descriptive_statistics(track_features_map_happy, desired_feature, "happy"))
+        statistics_list.append(calculate_descriptive_statistics(track_features_map_running, desired_feature, "running"))
+        statistics_list.append(calculate_descriptive_statistics(track_features_map_studying, desired_feature, "studying"))
 
         # Perform t-test
-        t_test(track_features_map_happy, track_features_map_running, desired_feature, "running")
-        t_test(track_features_map_happy, track_features_map_studying, desired_feature, "studying")
+        t_test_list.append(t_test(track_features_map_happy, track_features_map_running, desired_feature, "running"))
+        t_test_list.append(t_test(track_features_map_happy, track_features_map_studying, desired_feature, "studying"))
 
         # Create plots per desired feature
         create_histogram(track_features_map_happy, track_features_map_running, track_features_map_studying,
                          desired_feature)
 
+    pd.DataFrame(statistics_list, columns=["mean", "standard deviation", "standard error", "feature", "group"]).to_latex(("../tables/statistics.tex"),index=False)
+    pd.DataFrame(t_test_list, columns=["t-value", "p-value", "feature", "group"]).to_latex(("../tables/t_tests.tex"),index=False)
 
 ################################################################################
 # Functions
@@ -176,9 +180,13 @@ def calculate_descriptive_statistics(track_features_map, desired_feature, group)
 
     # Convert nested dictionary to data frame
     track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
-    print(f'M = {track_features_df[desired_feature].mean():.2f}, '
-          f'SD = {track_features_df[desired_feature].std():.2f}, '
-          f'SE = {sem(track_features_df[desired_feature]):.2f}')
+    mean = round(track_features_df[desired_feature].mean(), 3)
+    standard_deviation = round(track_features_df[desired_feature].std(), 3)
+    standard_error = round(sem(track_features_df[desired_feature]), 3)
+    print(f'M = {mean}, '
+          f'SD = {standard_deviation}, '
+          f'SE = {standard_error}')
+    return mean, standard_deviation, standard_error, desired_feature, group
 
 
 def t_test(track_features_map_one, track_features_map_two, desired_feature, group):
@@ -188,8 +196,10 @@ def t_test(track_features_map_one, track_features_map_two, desired_feature, grou
     track_features_df_two = pd.DataFrame.from_dict(track_features_map_two, orient='index')
 
     t, p = ttest_ind(track_features_df_one[desired_feature], track_features_df_two[desired_feature], equal_var=False)
-    print(f't = {t:.2f}  p = {p:.3f}')
-    return t, p
+    t_rounded = round(t, 3)
+    p_rounded = round(p, 7)
+    print(f't = {t_rounded}  p = {p_rounded}')
+    return t_rounded, p_rounded, desired_feature, group
 
 
 def read_input_file(file_path):
