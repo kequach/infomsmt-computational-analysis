@@ -171,7 +171,7 @@ def create_histogram(track_features_map_happy, track_features_map_running, track
     plt.legend()
 
     # Save figure
-    plt.savefig(f'../plots/{desired_feature}.png', bbox_inches='tight')
+    plt.savefig(f'../plots/histogram_{desired_feature}.png', bbox_inches='tight')
     plt.close()
 
 

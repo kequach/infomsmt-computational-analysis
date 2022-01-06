@@ -6,6 +6,3 @@ venv/
 .env
 
 src/.cache
-
-plots/*
-!plots/.gitkeep
