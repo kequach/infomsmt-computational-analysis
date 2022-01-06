@@ -34,17 +34,17 @@ def main():
     spotify = authenticate_client()
 
     df = parse_input_file()
-    playlist_ids_happy = get_playlist_ids(df, 'happy')
+    playlist_ids_mood_boosting = get_playlist_ids(df, 'mood boosting')
     playlist_ids_running = get_playlist_ids(df, 'running')
     playlist_ids_studying = get_playlist_ids(df, 'studying')
 
     # Get tracks from a list of playlists
-    tracks_happy = get_tracks_from_list_of_playlists(spotify, playlist_ids_happy)
+    tracks_mood_boosting = get_tracks_from_list_of_playlists(spotify, playlist_ids_mood_boosting)
     tracks_running = get_tracks_from_list_of_playlists(spotify, playlist_ids_running)
     tracks_studying = get_tracks_from_list_of_playlists(spotify, playlist_ids_studying)
 
     # Get high level audio feature information
-    track_features_map_happy = get_audio_features_in_chunks(spotify, tracks_happy)
+    track_features_map_mood_boosting = get_audio_features_in_chunks(spotify, tracks_mood_boosting)
     track_features_map_running = get_audio_features_in_chunks(spotify, tracks_running)
     track_features_map_studying = get_audio_features_in_chunks(spotify, tracks_studying)
 
@@ -52,16 +52,16 @@ def main():
     t_test_list = []
     for desired_feature in desired_features:
         # Calculate descriptive statistics
-        statistics_list.append(calculate_descriptive_statistics(track_features_map_happy, desired_feature, "happy"))
+        statistics_list.append(calculate_descriptive_statistics(track_features_map_mood_boosting, desired_feature, "mood boosting"))
         statistics_list.append(calculate_descriptive_statistics(track_features_map_running, desired_feature, "running"))
         statistics_list.append(calculate_descriptive_statistics(track_features_map_studying, desired_feature, "studying"))
 
         # Perform t-test
-        t_test_list.append(t_test(track_features_map_happy, track_features_map_running, desired_feature, "running"))
-        t_test_list.append(t_test(track_features_map_happy, track_features_map_studying, desired_feature, "studying"))
+        t_test_list.append(t_test(track_features_map_mood_boosting, track_features_map_running, desired_feature, "running"))
+        t_test_list.append(t_test(track_features_map_mood_boosting, track_features_map_studying, desired_feature, "studying"))
 
         # Create plots per desired feature
-        create_histogram(track_features_map_happy, track_features_map_running, track_features_map_studying,
+        create_histogram(track_features_map_mood_boosting, track_features_map_running, track_features_map_studying,
                          desired_feature)
 
     pd.DataFrame(statistics_list, columns=["mean", "standard deviation", "standard error", "feature", "group"]).to_latex(("../tables/statistics.tex"),index=False)
@@ -136,10 +136,10 @@ def get_audio_features(spotify, tracks, pretty_print=False):
     return track_features_map
 
 
-def create_histogram(track_features_map_happy, track_features_map_running, track_features_map_studying,
+def create_histogram(track_features_map_mood_boosting, track_features_map_running, track_features_map_studying,
                      desired_feature):
     # Convert nested dictionary to data frame
-    track_features_df_happy = pd.DataFrame.from_dict(track_features_map_happy, orient='index')
+    track_features_df_mood_boosting = pd.DataFrame.from_dict(track_features_map_mood_boosting, orient='index')
     track_features_df_running = pd.DataFrame.from_dict(track_features_map_running, orient='index')
     track_features_df_studying = pd.DataFrame.from_dict(track_features_map_studying, orient='index')
 
@@ -148,7 +148,7 @@ def create_histogram(track_features_map_happy, track_features_map_running, track
     plt.style.use('seaborn-whitegrid')
 
     # Plot histograms per category
-    plt.hist(track_features_df_happy[desired_feature], bins=30, alpha=0.5, label="Happiness", facecolor='#1DB954',
+    plt.hist(track_features_df_mood_boosting[desired_feature], bins=30, alpha=0.5, label="Mood boosting", facecolor='#1DB954',
              edgecolor='#191414')
     plt.hist(track_features_df_running[desired_feature], bins=30, alpha=0.5, label="Running", facecolor='#FC7E00',
              edgecolor='#191414')
@@ -156,7 +156,7 @@ def create_histogram(track_features_map_happy, track_features_map_running, track
              edgecolor='#191414')
 
     # Plot dashed line for average
-    plt.axvline(track_features_df_happy[desired_feature].mean(), color='#1DB954', linestyle='dashed')
+    plt.axvline(track_features_df_mood_boosting[desired_feature].mean(), color='#1DB954', linestyle='dashed')
     plt.axvline(track_features_df_running[desired_feature].mean(), color='#FC7E00', linestyle='dashed')
     plt.axvline(track_features_df_studying[desired_feature].mean(), color='#009FFF', linestyle='dashed')
 
