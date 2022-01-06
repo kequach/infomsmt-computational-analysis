@@ -232,7 +232,7 @@ def get_recommendations(spotify, descriptive_statistics_df):
     descriptive_statistics_df = descriptive_statistics_df.query('group == "mood boosting"')
 
     results = spotify.recommendations(seed_artists=seed_artists, seed_genres=None, seed_tracks=None,
-                                      country=None, limit=20,
+                                      country=None, limit=10,
                                       min_tempo=descriptive_statistics_df.query('feature == "tempo"')["mean"] - descriptive_statistics_df.query('feature == "tempo"')["standard deviation"],
                                       max_tempo=descriptive_statistics_df.query('feature == "tempo"')["mean"] + descriptive_statistics_df.query('feature == "tempo"')["standard deviation"],
                                       min_loudness=descriptive_statistics_df.query('feature == "loudness"')["mean"] - descriptive_statistics_df.query('feature == "loudness"')["standard deviation"],
@@ -249,9 +249,9 @@ def get_recommendations(spotify, descriptive_statistics_df):
 
     for track in results['tracks']:
         print(f'Artist: {track["artists"][0]["name"]}\n'
-              f'Name = {track["name"]}\n'
-              f'Preview-URL = {track["preview_url"]}\n'
-              f'Spotify-URL = {track["external_urls"]["spotify"]}\n')
+              f'Name: {track["name"]}\n'
+              f'Preview-URL: {track["preview_url"]}\n'
+              f'Spotify-URL: {track["external_urls"]["spotify"]}\n')
 
 
 def read_input_file(file_path):
