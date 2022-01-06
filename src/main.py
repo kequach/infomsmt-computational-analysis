@@ -98,8 +98,12 @@ def main():
     )
     descriptive_statistics_df.to_latex("../tables/descriptive_statistics.tex", index=False)
 
-    t_test_adjusted_df = pd.DataFrame(t_test_list_adjusted, columns=["group", "feature", "p-value corrected", "p-value uncorrected", "t-value", "significant"])
-    t_test_adjusted_df.to_latex(("../tables/t_tests.tex"),index=False)
+    t_test_adjusted_df = pd.DataFrame(
+        t_test_list_adjusted,
+        columns=["group", "feature", "p-value corrected", "p-value uncorrected", "t-value", "significant"]
+    )
+
+    t_test_adjusted_df.to_latex("../tables/t_tests.tex", index=False)
     print("Successfully calculated statistics and exported to tables subfolder.")
 
     # Get genres from artists
