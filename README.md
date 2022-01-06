@@ -15,6 +15,8 @@ TODO: add abstract here
 
 ## General information
 
+The program output includes LaTeX tables with descriptive statistics and Bonferroni corrected t-tests, as well as the actual track recommendations based on the descriptive statistical values of extracted audio features.
+
 ### The Spotify Web API
 The Spotify Web API allows applications to fetch lots of awesome data from the Spotify catalog, as well as manage
 a user's playlists and saved music.  Some examples of of info you get are:
