@@ -1,18 +1,18 @@
-\begin{tabular}{rrrll}
+\begin{tabular}{llrrrl}
 \toprule
- p-value corrected &  p-value uncorrected &  t-value &       feature &     group \\
+    group &       feature &  p-value corrected &  p-value uncorrected &  t-value &  significant \\
 \midrule
-          0.000346 &         2.880000e-05 &   -4.203 &         tempo &   running \\
-          1.000000 &         8.438257e-01 &   -0.197 &         tempo &  studying \\
-          1.000000 &         1.581204e-01 &   -1.413 &      loudness &   running \\
-          0.000000 &         0.000000e+00 &   40.671 &      loudness &  studying \\
-          0.000000 &         0.000000e+00 &  -11.727 &        energy &   running \\
-          0.000000 &         0.000000e+00 &   42.596 &        energy &  studying \\
-          1.000000 &         6.029992e-01 &    0.520 &  danceability &   running \\
-          0.000000 &         0.000000e+00 &   19.480 &  danceability &  studying \\
-          0.100042 &         8.336800e-03 &   -2.644 &   speechiness &   running \\
-          0.000001 &         1.000000e-07 &    5.333 &   speechiness &  studying \\
-          1.000000 &         1.211517e-01 &    1.551 &       valence &   running \\
-          0.000000 &         0.000000e+00 &   28.489 &       valence &  studying \\
+  running &         tempo &              0.000 &                0.000 &   -4.258 &         True \\
+ studying &         tempo &              1.000 &                0.851 &   -0.188 &        False \\
+  running &      loudness &              1.000 &                0.172 &   -1.368 &        False \\
+ studying &      loudness &              0.000 &                0.000 &   40.789 &         True \\
+  running &        energy &              0.000 &                0.000 &  -11.597 &         True \\
+ studying &        energy &              0.000 &                0.000 &   42.890 &         True \\
+  running &  danceability &              1.000 &                0.527 &    0.633 &        False \\
+ studying &  danceability &              0.000 &                0.000 &   19.514 &         True \\
+  running &   speechiness &              0.111 &                0.009 &   -2.608 &        False \\
+ studying &   speechiness &              0.000 &                0.000 &    5.371 &         True \\
+  running &       valence &              0.349 &                0.029 &    2.186 &        False \\
+ studying &       valence &              0.000 &                0.000 &   28.678 &         True \\
 \bottomrule
 \end{tabular}

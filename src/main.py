@@ -24,8 +24,8 @@ from common import (
 # https://developer.spotify.com/web-api/using-scopes/
 scope = 'user-library-read playlist-read-private'
 
-# Uncomment line below to remove scientific notation and round after 7 decimals
-# pd.options.display.float_format = '{:.7f}'.format
+# Uncomment line below to remove scientific notation and round after 3 decimals
+pd.options.display.float_format = '{:.3f}'.format
 
 ################################################################################
 # Main Function
@@ -72,22 +72,17 @@ def main():
     p_values = [entry[0] for entry in t_test_list]
     # Create a list of the adjusted p-values
     p_adjusted = multipletests(p_values, alpha=.05, method='bonferroni')
-    p_values_adjusted = [round(value, 7) for value in p_adjusted[1]]
-    print("P-values uncorrected")
-    print(p_values)
-    print("P-values with bonferroni-correction")
-    print(p_values_adjusted)
-    t_test_list_adjusted = []
 
+    t_test_list_adjusted = []
     # create new list with added adjusted values
-    for (p_value, t_value, feature, group), p_value_adjusted in zip(t_test_list, p_values_adjusted):
-        t_test_list_adjusted.append([p_value_adjusted, p_value, t_value, feature, group])
+    for (p_value, t_value, feature, group), significant, p_adjusted in zip(t_test_list, p_adjusted[0], p_adjusted[1]):
+        t_test_list_adjusted.append([group, feature, round(p_adjusted, 3), p_value, t_value, significant])
 
     # Export statistics and t-test to .tex tables
     descriptive_statistics_df = pd.DataFrame(descriptive_statistics_list, columns=["group", "feature", "mean", "standard deviation", "standard error"])
     descriptive_statistics_df.to_latex(("../tables/descriptive_statistics.tex"),index=False)
 
-    t_test_adjusted_df = pd.DataFrame(t_test_list_adjusted, columns=["p-value corrected", "p-value uncorrected", "t-value", "feature", "group"])
+    t_test_adjusted_df = pd.DataFrame(t_test_list_adjusted, columns=["group", "feature", "p-value corrected", "p-value uncorrected", "t-value", "significant"])
     t_test_adjusted_df.to_latex(("../tables/t_tests.tex"),index=False)
 
     # get genres from artists 
@@ -205,7 +200,7 @@ def create_histogram(track_features_map_mood_boosting, track_features_map_runnin
 
 
 def calculate_descriptive_statistics(track_features_map, desired_feature, group):
-    print_header(f'Descriptive statistics for {group}: {desired_feature.capitalize()}')
+    # print_header(f'Descriptive statistics for {group}: {desired_feature.capitalize()}')
 
     # Convert nested dictionary to data frame
     track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
@@ -216,20 +211,20 @@ def calculate_descriptive_statistics(track_features_map, desired_feature, group)
     standard_error = round(sem(track_features_df[desired_feature]), 3)
 
     # Print and return mean, standard deviation, and standard error
-    print(f'M = {mean}, SD = {standard_deviation}, SE = {standard_error}')
+    # print(f'M = {mean}, SD = {standard_deviation}, SE = {standard_error}')
     return group, desired_feature, mean, standard_deviation, standard_error
 
 
 def t_test(track_features_map_one, track_features_map_two, desired_feature, group):
-    print_header(f't-test: {desired_feature.capitalize()}, comparison to {group}')
+    # print_header(f't-test: {desired_feature.capitalize()}, comparison to {group}')
 
     track_features_df_one = pd.DataFrame.from_dict(track_features_map_one, orient='index')
     track_features_df_two = pd.DataFrame.from_dict(track_features_map_two, orient='index')
 
     t, p = ttest_ind(track_features_df_one[desired_feature], track_features_df_two[desired_feature], equal_var=False)
     t_rounded = round(t, 3)
-    p_rounded = round(p, 7)
-    print(f't = {t_rounded}  p = {p_rounded}')
+    p_rounded = round(p, 10)
+    # print(f't = {t_rounded}  p = {p_rounded}')
     return p_rounded, t_rounded, desired_feature, group
 
 

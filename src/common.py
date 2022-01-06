@@ -48,7 +48,7 @@ def fetch_artists(spotify, artists):
     result = []
     for i in batches:
         end = i+batch_size
-        print('Fetching artists {} - {}'.format(i, end))
+        # print('Fetching artists {} - {}'.format(i, end))
         chunk = spotify.artists(artists[i:end])
         result = result + chunk.get('artists', [])
 
