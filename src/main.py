@@ -49,13 +49,13 @@ def main():
     track_features_map_running = get_audio_features_in_chunks(spotify, tracks_running)
     track_features_map_studying = get_audio_features_in_chunks(spotify, tracks_studying)
 
-    statistics_list = []
+    descriptive_statistics_list = []
     t_test_list = []
     for desired_feature in desired_features:
         # Calculate descriptive statistics
-        statistics_list.append(calculate_descriptive_statistics(track_features_map_mood_boosting, desired_feature, "mood boosting"))
-        statistics_list.append(calculate_descriptive_statistics(track_features_map_running, desired_feature, "running"))
-        statistics_list.append(calculate_descriptive_statistics(track_features_map_studying, desired_feature, "studying"))
+        descriptive_statistics_list.append(calculate_descriptive_statistics(track_features_map_mood_boosting, desired_feature, "mood boosting"))
+        descriptive_statistics_list.append(calculate_descriptive_statistics(track_features_map_running, desired_feature, "running"))
+        descriptive_statistics_list.append(calculate_descriptive_statistics(track_features_map_studying, desired_feature, "studying"))
 
         # Perform t-test
         t_test_list.append(t_test(track_features_map_mood_boosting, track_features_map_running, desired_feature, "running"))
@@ -79,12 +79,15 @@ def main():
     for (p_value, t_value, feature, group), p_value_adjusted in zip(t_test_list, p_adjusted[1]):
         t_test_list_adjusted.append([p_value_adjusted, p_value, t_value, feature, group])
 
-    pd.DataFrame(statistics_list, columns=["mean", "standard deviation", "standard error", "feature", "group"]).to_latex(("../tables/statistics.tex"),index=False)
-    pd.DataFrame(t_test_list_adjusted, columns=["p-value corrected", "p-value uncorrected", "t-value", "feature", "group"]).to_latex(("../tables/t_tests.tex"),index=False)
+    descriptive_statistics_df = pd.DataFrame(descriptive_statistics_list, columns=["mean", "standard deviation", "standard error", "feature", "group"])
+    descriptive_statistics_df.to_latex(("../tables/statistics.tex"),index=False)
 
-    # get_recommendations(spotify)
+    t_test_adjusted_df = pd.DataFrame(t_test_list_adjusted, columns=["p-value corrected", "p-value uncorrected", "t-value", "feature", "group"])
+    t_test_adjusted_df.to_latex(("../tables/t_tests.tex"),index=False)
 
-    get_recommendations(spotify)
+    get_recommendations(spotify, descriptive_statistics_df)
+
+
 ################################################################################
 # Functions
 ################################################################################
@@ -222,23 +225,33 @@ def t_test(track_features_map_one, track_features_map_two, desired_feature, grou
     return p_rounded, t_rounded, desired_feature, group
 
 
-def get_artist(spotify, name):
-    results = spotify.search(q='artist:' + name, type='artist')
-    items = results['artists']['items']
-    if len(items) > 0:
-        return items[0]
-    else:
-        return None
+def get_recommendations(spotify, descriptive_statistics_df):
+    print_header('Get recommendations')
 
+    seed_artists = ['3TVXtAsR1Inumwj472S9r4', '06HL4z0CvFAxyc27GXpf02', '6eUKZXaKkcviH0Ku9w2n3V']
+    descriptive_statistics_df = descriptive_statistics_df.query('group == "mood boosting"')
 
-def get_recommendations(spotify):
-    results = spotify.search(q='artist:Drake', type='artist')
-    items = results['artists']['items']
-
-    results = spotify.recommendations(seed_artists=[items[0]['id']], seed_genres=None, seed_tracks=None, limit=20, country=None)
+    results = spotify.recommendations(seed_artists=seed_artists, seed_genres=None, seed_tracks=None,
+                                      country=None, limit=20,
+                                      min_tempo=descriptive_statistics_df.query('feature == "tempo"')["mean"] - descriptive_statistics_df.query('feature == "tempo"')["standard deviation"],
+                                      max_tempo=descriptive_statistics_df.query('feature == "tempo"')["mean"] + descriptive_statistics_df.query('feature == "tempo"')["standard deviation"],
+                                      min_loudness=descriptive_statistics_df.query('feature == "loudness"')["mean"] - descriptive_statistics_df.query('feature == "loudness"')["standard deviation"],
+                                      max_loudness=descriptive_statistics_df.query('feature == "loudness"')["mean"] + descriptive_statistics_df.query('feature == "loudness"')["standard deviation"],
+                                      min_energy=descriptive_statistics_df.query('feature == "energy"')["mean"] - descriptive_statistics_df.query('feature == "energy"')["standard deviation"],
+                                      max_energy=descriptive_statistics_df.query('feature == "energy"')["mean"] + descriptive_statistics_df.query('feature == "energy"')["standard deviation"],
+                                      min_danceability=descriptive_statistics_df.query('feature == "danceability"')["mean"] - descriptive_statistics_df.query('feature == "danceability"')["standard deviation"],
+                                      max_danceability=descriptive_statistics_df.query('feature == "danceability"')["mean"] + descriptive_statistics_df.query('feature == "danceability"')["standard deviation"],
+                                      min_speechiness=descriptive_statistics_df.query('feature == "speechiness"')["mean"] - descriptive_statistics_df.query('feature == "speechiness"')["standard deviation"],
+                                      max_speechiness=descriptive_statistics_df.query('feature == "speechiness"')["mean"] + descriptive_statistics_df.query('feature == "speechiness"')["standard deviation"],
+                                      min_valence=descriptive_statistics_df.query('feature == "valence"')["mean"] - descriptive_statistics_df.query('feature == "valence"')["standard deviation"],
+                                      max_valence=descriptive_statistics_df.query('feature == "valence"')["mean"] + descriptive_statistics_df.query('feature == "valence"')["standard deviation"]
+                                      )
 
     for track in results['tracks']:
-        print('Recommendation: %s - %s', track['name'], track['artists'][0]['name'])
+        print(f'Artist: {track["artists"][0]["name"]}\n'
+              f'Name = {track["name"]}\n'
+              f'Preview-URL = {track["preview_url"]}\n'
+              f'Spotify-URL = {track["external_urls"]["spotify"]}\n')
 
 
 def read_input_file(file_path):
