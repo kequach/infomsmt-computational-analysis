@@ -193,12 +193,20 @@ def create_histogram(track_features_map_mood_boosting, track_features_map_runnin
     plt.style.use('seaborn-whitegrid')
 
     # Plot histograms per category
-    plt.hist(track_features_df_mood_boosting[desired_feature], bins=30, alpha=0.5, label="Mood boosting",
-             facecolor='#1DB954', edgecolor='#191414')
-    plt.hist(track_features_df_running[desired_feature], bins=30, alpha=0.5, label="Running",
-             facecolor='#FC7E00', edgecolor='#191414')
-    plt.hist(track_features_df_studying[desired_feature], bins=30, alpha=0.5, label="Studying",
-             facecolor='#009FFF', edgecolor='#191414')
+    plt.hist(
+        track_features_df_mood_boosting[desired_feature],
+        bins=30, alpha=0.5, label="Mood boosting", facecolor='#1DB954', edgecolor='#191414'
+    )
+
+    plt.hist(
+        track_features_df_running[desired_feature],
+        bins=30, alpha=0.5, label="Running", facecolor='#FC7E00', edgecolor='#191414'
+    )
+
+    plt.hist(
+        track_features_df_studying[desired_feature],
+        bins=30, alpha=0.5, label="Studying", facecolor='#009FFF', edgecolor='#191414'
+    )
 
     # Plot dashed line for average
     plt.axvline(track_features_df_mood_boosting[desired_feature].mean(), color='#1DB954', linestyle='dashed')
