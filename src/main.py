@@ -43,9 +43,9 @@ def main():
     playlist_ids_studying = get_playlist_ids(df, 'studying')
 
     # Get tracks from a list of playlists
-    tracks_mood_boosting = get_tracks_from_list_of_playlists(spotify, playlist_ids_mood_boosting)
-    tracks_running = get_tracks_from_list_of_playlists(spotify, playlist_ids_running)
-    tracks_studying = get_tracks_from_list_of_playlists(spotify, playlist_ids_studying)
+    tracks_mood_boosting = get_tracks_from_list_of_playlists(spotify, playlist_ids_mood_boosting, "mood boosting")
+    tracks_running = get_tracks_from_list_of_playlists(spotify, playlist_ids_running, "running")
+    tracks_studying = get_tracks_from_list_of_playlists(spotify, playlist_ids_studying, "studying")
 
     # Get high level audio feature information
     track_features_map_mood_boosting = get_audio_features_in_chunks(spotify, tracks_mood_boosting)
@@ -100,7 +100,9 @@ def get_playlist_ids(df, category):
     return ids
 
 
-def get_tracks_from_list_of_playlists(spotify, playlist_ids):
+def get_tracks_from_list_of_playlists(spotify, playlist_ids, group):
+    print_header("Get tracks from list of playlists for " + group)
+
     tracks = []
     for playlist_id in playlist_ids:
         tracks.extend(get_tracks_by_playlist_id(spotify, None, playlist_id))
@@ -229,16 +231,21 @@ def t_test(track_features_map_one, track_features_map_two, desired_feature, grou
 
 
 def get_top5_genres(spotify, tracks):
+    print_header("Get top 5 genres")
     artists = []
     for track in tracks:
         for artist in track["artists"]:
             artists.append(artist["id"])
+
     print(f"Total number of artists retrieved: {len(artists)}")
-    print(f"Number of unique artists retrieved: {len(set(artists))}")
+    print(f"Unique number of artists retrieved: {len(set(artists))}")
+
     artists_retrieved = fetch_artists(spotify, artists)
+
     artist_genres = []
     for artist in artists_retrieved:
         artist_genres.extend(artist["genres"])
+
     genre_counts = Counter(artist_genres)
     available_genres = spotify.recommendation_genre_seeds()["genres"]
     counter = 0
