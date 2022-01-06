@@ -7,6 +7,7 @@ from scipy.stats import (
     sem,
     ttest_ind
 )
+from statsmodels.sandbox.stats.multicomp import multipletests
 
 from display_utils import (
     print_header,
@@ -64,8 +65,22 @@ def main():
         create_histogram(track_features_map_mood_boosting, track_features_map_running, track_features_map_studying,
                          desired_feature)
 
+    p_values = [entry[0] for entry in t_test_list]
+    # Create a list of the adjusted p-values
+    p_adjusted = multipletests(p_values, alpha=.05, method='bonferroni')
+    # Print the resulting conclusions
+    print(p_adjusted)
+    print("P-values uncorrected")
+    print(p_values)
+    # Print the adjusted p-values themselves 
+    print("P-values with bonferroni-correction")
+    print(p_adjusted[1])
+    t_test_list_adjusted = []
+    for (p_value, t_value, feature, group), p_value_adjusted in zip(t_test_list, p_adjusted[1]):
+        t_test_list_adjusted.append([p_value_adjusted, p_value, t_value, feature, group])
+
     pd.DataFrame(statistics_list, columns=["mean", "standard deviation", "standard error", "feature", "group"]).to_latex(("../tables/statistics.tex"),index=False)
-    pd.DataFrame(t_test_list, columns=["t-value", "p-value", "feature", "group"]).to_latex(("../tables/t_tests.tex"),index=False)
+    pd.DataFrame(t_test_list_adjusted, columns=["p-value corrected", "p-value uncorrected", "t-value", "feature", "group"]).to_latex(("../tables/t_tests.tex"),index=False)
 
     # get_recommendations(spotify)
 
@@ -204,7 +219,7 @@ def t_test(track_features_map_one, track_features_map_two, desired_feature, grou
     t_rounded = round(t, 3)
     p_rounded = round(p, 7)
     print(f't = {t_rounded}  p = {p_rounded}')
-    return t_rounded, p_rounded, desired_feature, group
+    return p_rounded, t_rounded, desired_feature, group
 
 
 def get_artist(spotify, name):
