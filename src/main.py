@@ -1,5 +1,6 @@
 import json
 import argparse
+from collections import Counter
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -15,13 +16,16 @@ from display_utils import (
 )
 
 from common import (
-    authenticate_client
+    authenticate_client,
+    fetch_artists
 )
 
 # Define the scopes that we need access to
 # https://developer.spotify.com/web-api/using-scopes/
 scope = 'user-library-read playlist-read-private'
 
+# Uncomment line below to remove scientific notation and round after 7 decimals
+# pd.options.display.float_format = '{:.7f}'.format
 
 ################################################################################
 # Main Function
@@ -33,7 +37,6 @@ def main():
     desired_features = ['tempo', 'loudness', 'energy', 'danceability', 'speechiness', 'valence']
 
     spotify = authenticate_client()
-
     df = parse_input_file()
     playlist_ids_mood_boosting = get_playlist_ids(df, 'mood boosting')
     playlist_ids_running = get_playlist_ids(df, 'running')
@@ -65,28 +68,33 @@ def main():
         create_histogram(track_features_map_mood_boosting, track_features_map_running, track_features_map_studying,
                          desired_feature)
 
+    # Bonferroni correction of t-tests
     p_values = [entry[0] for entry in t_test_list]
     # Create a list of the adjusted p-values
     p_adjusted = multipletests(p_values, alpha=.05, method='bonferroni')
-    # Print the resulting conclusions
-    print(p_adjusted)
+    p_values_adjusted = [round(value, 7) for value in p_adjusted[1]]
     print("P-values uncorrected")
     print(p_values)
-    # Print the adjusted p-values themselves 
     print("P-values with bonferroni-correction")
-    print(p_adjusted[1])
+    print(p_values_adjusted)
     t_test_list_adjusted = []
-    for (p_value, t_value, feature, group), p_value_adjusted in zip(t_test_list, p_adjusted[1]):
+
+    # create new list with added adjusted values
+    for (p_value, t_value, feature, group), p_value_adjusted in zip(t_test_list, p_values_adjusted):
         t_test_list_adjusted.append([p_value_adjusted, p_value, t_value, feature, group])
 
+    # Export statistics and t-test to .tex tables
     descriptive_statistics_df = pd.DataFrame(descriptive_statistics_list, columns=["mean", "standard deviation", "standard error", "feature", "group"])
     descriptive_statistics_df.to_latex(("../tables/statistics.tex"),index=False)
 
     t_test_adjusted_df = pd.DataFrame(t_test_list_adjusted, columns=["p-value corrected", "p-value uncorrected", "t-value", "feature", "group"])
     t_test_adjusted_df.to_latex(("../tables/t_tests.tex"),index=False)
 
-    get_recommendations(spotify, descriptive_statistics_df)
+    # get genres from artists 
+    genres = get_top5_genres(spotify, tracks_mood_boosting)
 
+    recommendations = get_recommendations(spotify, descriptive_statistics_df, genres)
+    pd.DataFrame(recommendations, columns = ["Artists", "Name", "Preview-URL", "Spotify-URL"]).to_csv("recommendations.csv", index=False)
 
 ################################################################################
 # Functions
@@ -225,13 +233,37 @@ def t_test(track_features_map_one, track_features_map_two, desired_feature, grou
     return p_rounded, t_rounded, desired_feature, group
 
 
-def get_recommendations(spotify, descriptive_statistics_df):
+def get_top5_genres(spotify, tracks):
+    artists = []
+    for track in tracks:
+        for artist in track["artists"]:
+            artists.append(artist["id"])
+    print(f"Total number of artists retrieved: {len(artists)}")
+    print(f"Number of unique artists retrieved: {len(set(artists))}")
+    artists_retrieved = fetch_artists(spotify, artists)
+    artist_genres = []
+    for artist in artists_retrieved:
+        artist_genres.extend(artist["genres"])
+    genre_counts = Counter(artist_genres)
+    available_genres = spotify.recommendation_genre_seeds()["genres"]
+    counter = 0
+    genres = []
+    for (genre, _) in genre_counts.most_common():
+        if counter >= 5:
+            break
+        if genre in available_genres:
+            genres.append(genre)
+            counter += 1
+    print(f"Found {counter} genres: {genres}")
+    return genres
+
+
+def get_recommendations(spotify, descriptive_statistics_df, seed_genres):
     print_header('Get recommendations')
 
-    seed_artists = ['3TVXtAsR1Inumwj472S9r4', '06HL4z0CvFAxyc27GXpf02', '6eUKZXaKkcviH0Ku9w2n3V']
     descriptive_statistics_df = descriptive_statistics_df.query('group == "mood boosting"')
 
-    results = spotify.recommendations(seed_artists=seed_artists, seed_genres=None, seed_tracks=None,
+    results = spotify.recommendations(seed_artists=None, seed_genres=seed_genres, seed_tracks=None,
                                       country=None, limit=10,
                                       min_tempo=descriptive_statistics_df.query('feature == "tempo"')["mean"] - descriptive_statistics_df.query('feature == "tempo"')["standard deviation"],
                                       max_tempo=descriptive_statistics_df.query('feature == "tempo"')["mean"] + descriptive_statistics_df.query('feature == "tempo"')["standard deviation"],
@@ -246,12 +278,15 @@ def get_recommendations(spotify, descriptive_statistics_df):
                                       min_valence=descriptive_statistics_df.query('feature == "valence"')["mean"] - descriptive_statistics_df.query('feature == "valence"')["standard deviation"],
                                       max_valence=descriptive_statistics_df.query('feature == "valence"')["mean"] + descriptive_statistics_df.query('feature == "valence"')["standard deviation"]
                                       )
-
+    recommendations = []
     for track in results['tracks']:
-        print(f'Artist: {track["artists"][0]["name"]}\n'
+        artists = "; ".join([artist["name"] for artist in track["artists"]])
+        print(f'Artists: {artists}\n'
               f'Name: {track["name"]}\n'
               f'Preview-URL: {track["preview_url"]}\n'
               f'Spotify-URL: {track["external_urls"]["spotify"]}\n')
+        recommendations.append([artists, track["name"], track["preview_url"], track["external_urls"]["spotify"]])
+    return recommendations
 
 
 def read_input_file(file_path):
