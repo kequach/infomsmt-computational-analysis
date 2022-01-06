@@ -10,10 +10,7 @@ from scipy.stats import (
 )
 from statsmodels.sandbox.stats.multicomp import multipletests
 
-from display_utils import (
-    print_header,
-    print_audio_features_for_track
-)
+from display_utils import print_header
 
 from common import (
     authenticate_client,
@@ -26,6 +23,7 @@ scope = 'user-library-read playlist-read-private'
 
 # Uncomment line below to remove scientific notation and round after 3 decimals
 pd.options.display.float_format = '{:.3f}'.format
+
 
 ################################################################################
 # Main Function
@@ -56,13 +54,26 @@ def main():
     t_test_list = []
     for desired_feature in desired_features:
         # Calculate descriptive statistics
-        descriptive_statistics_list.append(calculate_descriptive_statistics(track_features_map_mood_boosting, desired_feature, "mood boosting"))
-        descriptive_statistics_list.append(calculate_descriptive_statistics(track_features_map_running, desired_feature, "running"))
-        descriptive_statistics_list.append(calculate_descriptive_statistics(track_features_map_studying, desired_feature, "studying"))
+        descriptive_statistics_list.append(
+            calculate_descriptive_statistics(track_features_map_mood_boosting, desired_feature, "mood boosting")
+        )
+
+        descriptive_statistics_list.append(
+            calculate_descriptive_statistics(track_features_map_running, desired_feature, "running")
+        )
+
+        descriptive_statistics_list.append(
+            calculate_descriptive_statistics(track_features_map_studying, desired_feature, "studying")
+        )
 
         # Perform t-test
-        t_test_list.append(t_test(track_features_map_mood_boosting, track_features_map_running, desired_feature, "running"))
-        t_test_list.append(t_test(track_features_map_mood_boosting, track_features_map_studying, desired_feature, "studying"))
+        t_test_list.append(
+            t_test(track_features_map_mood_boosting, track_features_map_running, desired_feature, "running")
+        )
+
+        t_test_list.append(
+            t_test(track_features_map_mood_boosting, track_features_map_studying, desired_feature, "studying")
+        )
 
         # Create plots per desired feature
         create_histogram(track_features_map_mood_boosting, track_features_map_running, track_features_map_studying,
@@ -79,17 +90,28 @@ def main():
         t_test_list_adjusted.append([group, feature, round(p_adjusted, 3), p_value, t_value, significant])
 
     # Export statistics and t-test to .tex tables
-    descriptive_statistics_df = pd.DataFrame(descriptive_statistics_list, columns=["group", "feature", "mean", "standard deviation", "standard error"])
-    descriptive_statistics_df.to_latex(("../tables/descriptive_statistics.tex"),index=False)
+    descriptive_statistics_df = pd.DataFrame(
+        descriptive_statistics_list,
+        columns=["group", "feature", "mean", "standard deviation", "standard error"]
+    )
+    descriptive_statistics_df.to_latex("../tables/descriptive_statistics.tex", index=False)
 
-    t_test_adjusted_df = pd.DataFrame(t_test_list_adjusted, columns=["group", "feature", "p-value corrected", "p-value uncorrected", "t-value", "significant"])
-    t_test_adjusted_df.to_latex(("../tables/t_tests.tex"),index=False)
+    t_test_adjusted_df = pd.DataFrame(
+        t_test_list_adjusted,
+        columns=["group", "feature", "p-value corrected", "p-value uncorrected", "t-value", "significant"]
+    )
+    t_test_adjusted_df.to_latex("../tables/t_tests.tex", index=False)
 
-    # get genres from artists 
+    # Get genres from artists
     genres = get_top5_genres(spotify, tracks_mood_boosting)
 
-    recommendations = get_recommendations(spotify, descriptive_statistics_df, genres)
-    pd.DataFrame(recommendations, columns = ["Artists", "Name", "Preview-URL", "Spotify-URL"]).to_csv("../recommendations.csv", index=False)
+    # Save recommendations to .csv
+    recommendations = get_recommendations(spotify, descriptive_statistics_df, genres, desired_features)
+    pd.DataFrame(
+        recommendations,
+        columns=["Artists", "Name", "Preview-URL", "Spotify-URL"]
+    ).to_csv("../recommendations.csv", index=False)
+
 
 ################################################################################
 # Functions
@@ -167,12 +189,12 @@ def create_histogram(track_features_map_mood_boosting, track_features_map_runnin
     plt.style.use('seaborn-whitegrid')
 
     # Plot histograms per category
-    plt.hist(track_features_df_mood_boosting[desired_feature], bins=30, alpha=0.5, label="Mood boosting", facecolor='#1DB954',
-             edgecolor='#191414')
-    plt.hist(track_features_df_running[desired_feature], bins=30, alpha=0.5, label="Running", facecolor='#FC7E00',
-             edgecolor='#191414')
-    plt.hist(track_features_df_studying[desired_feature], bins=30, alpha=0.5, label="Studying", facecolor='#009FFF',
-             edgecolor='#191414')
+    plt.hist(track_features_df_mood_boosting[desired_feature], bins=30, alpha=0.5, label="Mood boosting",
+             facecolor='#1DB954', edgecolor='#191414')
+    plt.hist(track_features_df_running[desired_feature], bins=30, alpha=0.5, label="Running",
+             facecolor='#FC7E00', edgecolor='#191414')
+    plt.hist(track_features_df_studying[desired_feature], bins=30, alpha=0.5, label="Studying",
+             facecolor='#009FFF', edgecolor='#191414')
 
     # Plot dashed line for average
     plt.axvline(track_features_df_mood_boosting[desired_feature].mean(), color='#1DB954', linestyle='dashed')
@@ -253,26 +275,23 @@ def get_top5_genres(spotify, tracks):
     return genres
 
 
-def get_recommendations(spotify, descriptive_statistics_df, seed_genres):
+def get_recommendations(spotify, descriptive_statistics_df, seed_genres, desired_features):
     print_header('Get recommendations')
 
     descriptive_statistics_df = descriptive_statistics_df.query('group == "mood boosting"')
 
+    feature_boundaries = {}
+    for desired_feature in desired_features:
+        feature_boundaries['min_' + desired_feature] = \
+            descriptive_statistics_df.query('feature == "' + desired_feature + '"')["mean"] - \
+            descriptive_statistics_df.query('feature == "' + desired_feature + '"')["standard deviation"]
+
+        feature_boundaries['max_' + desired_feature] = \
+            descriptive_statistics_df.query('feature == "' + desired_feature + '"')["mean"] + \
+            descriptive_statistics_df.query('feature == "' + desired_feature + '"')["standard deviation"]
+
     results = spotify.recommendations(seed_artists=None, seed_genres=seed_genres, seed_tracks=None,
-                                      country=None, limit=10,
-                                      min_tempo=descriptive_statistics_df.query('feature == "tempo"')["mean"] - descriptive_statistics_df.query('feature == "tempo"')["standard deviation"],
-                                      max_tempo=descriptive_statistics_df.query('feature == "tempo"')["mean"] + descriptive_statistics_df.query('feature == "tempo"')["standard deviation"],
-                                      min_loudness=descriptive_statistics_df.query('feature == "loudness"')["mean"] - descriptive_statistics_df.query('feature == "loudness"')["standard deviation"],
-                                      max_loudness=descriptive_statistics_df.query('feature == "loudness"')["mean"] + descriptive_statistics_df.query('feature == "loudness"')["standard deviation"],
-                                      min_energy=descriptive_statistics_df.query('feature == "energy"')["mean"] - descriptive_statistics_df.query('feature == "energy"')["standard deviation"],
-                                      max_energy=descriptive_statistics_df.query('feature == "energy"')["mean"] + descriptive_statistics_df.query('feature == "energy"')["standard deviation"],
-                                      min_danceability=descriptive_statistics_df.query('feature == "danceability"')["mean"] - descriptive_statistics_df.query('feature == "danceability"')["standard deviation"],
-                                      max_danceability=descriptive_statistics_df.query('feature == "danceability"')["mean"] + descriptive_statistics_df.query('feature == "danceability"')["standard deviation"],
-                                      min_speechiness=descriptive_statistics_df.query('feature == "speechiness"')["mean"] - descriptive_statistics_df.query('feature == "speechiness"')["standard deviation"],
-                                      max_speechiness=descriptive_statistics_df.query('feature == "speechiness"')["mean"] + descriptive_statistics_df.query('feature == "speechiness"')["standard deviation"],
-                                      min_valence=descriptive_statistics_df.query('feature == "valence"')["mean"] - descriptive_statistics_df.query('feature == "valence"')["standard deviation"],
-                                      max_valence=descriptive_statistics_df.query('feature == "valence"')["mean"] + descriptive_statistics_df.query('feature == "valence"')["standard deviation"]
-                                      )
+                                      country=None, limit=10, **feature_boundaries)
     recommendations = []
     for track in results['tracks']:
         artists = "; ".join([artist["name"] for artist in track["artists"]])
