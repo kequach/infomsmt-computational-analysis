@@ -67,6 +67,9 @@ def main():
     pd.DataFrame(statistics_list, columns=["mean", "standard deviation", "standard error", "feature", "group"]).to_latex(("../tables/statistics.tex"),index=False)
     pd.DataFrame(t_test_list, columns=["t-value", "p-value", "feature", "group"]).to_latex(("../tables/t_tests.tex"),index=False)
 
+    # get_recommendations(spotify)
+
+    get_recommendations(spotify)
 ################################################################################
 # Functions
 ################################################################################
@@ -180,12 +183,14 @@ def calculate_descriptive_statistics(track_features_map, desired_feature, group)
 
     # Convert nested dictionary to data frame
     track_features_df = pd.DataFrame.from_dict(track_features_map, orient='index')
+
+    # Calculate mean, standard deviation, and standard error
     mean = round(track_features_df[desired_feature].mean(), 3)
     standard_deviation = round(track_features_df[desired_feature].std(), 3)
     standard_error = round(sem(track_features_df[desired_feature]), 3)
-    print(f'M = {mean}, '
-          f'SD = {standard_deviation}, '
-          f'SE = {standard_error}')
+
+    # Print and return mean, standard deviation, and standard error
+    print(f'M = {mean}, SD = {standard_deviation}, SE = {standard_error}')
     return mean, standard_deviation, standard_error, desired_feature, group
 
 
@@ -200,6 +205,25 @@ def t_test(track_features_map_one, track_features_map_two, desired_feature, grou
     p_rounded = round(p, 7)
     print(f't = {t_rounded}  p = {p_rounded}')
     return t_rounded, p_rounded, desired_feature, group
+
+
+def get_artist(spotify, name):
+    results = spotify.search(q='artist:' + name, type='artist')
+    items = results['artists']['items']
+    if len(items) > 0:
+        return items[0]
+    else:
+        return None
+
+
+def get_recommendations(spotify):
+    results = spotify.search(q='artist:Drake', type='artist')
+    items = results['artists']['items']
+
+    results = spotify.recommendations(seed_artists=[items[0]['id']], seed_genres=None, seed_tracks=None, limit=20, country=None)
+
+    for track in results['tracks']:
+        print('Recommendation: %s - %s', track['name'], track['artists'][0]['name'])
 
 
 def read_input_file(file_path):
