@@ -136,11 +136,11 @@ def get_audio_features_in_chunks(spotify, tracks, chunk_size=100):
     for i in range(0, len(tracks), chunk_size):
         chunk = tracks[i:i + chunk_size]
         # process chunk of size <= chunk_size
-        track_features_map.update(get_audio_features(spotify, chunk, pretty_print=False))
+        track_features_map.update(get_audio_features(spotify, chunk))
     return track_features_map
 
 
-def get_audio_features(spotify, tracks, pretty_print=False):
+def get_audio_features(spotify, tracks):
     if not tracks:
         print('No tracks provided.')
         return
@@ -151,13 +151,6 @@ def get_audio_features(spotify, tracks, pretty_print=False):
     # Request the audio features for the chosen tracks (limited to 50)
     tracks_features_response = spotify.audio_features(tracks=track_map.keys())
     track_features_map = {f.get('id'): f for f in tracks_features_response}
-
-    # Iterate through the features and print the track and info
-    if pretty_print:
-        for track_id, track_features in track_features_map.items():
-            # Print out the track info and audio features
-            track = track_map.get(track_id)
-            print_audio_features_for_track(track, track_features)
 
     return track_features_map
 
