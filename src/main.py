@@ -41,11 +41,13 @@ def main():
     playlist_ids_studying = get_playlist_ids(df, 'studying')
 
     # Get tracks from a list of playlists
+    print_header('Parsing playlists')
     tracks_mood_boosting = get_tracks_from_list_of_playlists(spotify, playlist_ids_mood_boosting, "mood boosting")
     tracks_running = get_tracks_from_list_of_playlists(spotify, playlist_ids_running, "running")
     tracks_studying = get_tracks_from_list_of_playlists(spotify, playlist_ids_studying, "studying")
 
     # Get high level audio feature information
+    print_header('Calculating statistics')
     track_features_map_mood_boosting = get_audio_features_in_chunks(spotify, tracks_mood_boosting)
     track_features_map_running = get_audio_features_in_chunks(spotify, tracks_running)
     track_features_map_studying = get_audio_features_in_chunks(spotify, tracks_studying)
@@ -96,11 +98,9 @@ def main():
     )
     descriptive_statistics_df.to_latex("../tables/descriptive_statistics.tex", index=False)
 
-    t_test_adjusted_df = pd.DataFrame(
-        t_test_list_adjusted,
-        columns=["group", "feature", "p-value corrected", "p-value uncorrected", "t-value", "significant"]
-    )
-    t_test_adjusted_df.to_latex("../tables/t_tests.tex", index=False)
+    t_test_adjusted_df = pd.DataFrame(t_test_list_adjusted, columns=["group", "feature", "p-value corrected", "p-value uncorrected", "t-value", "significant"])
+    t_test_adjusted_df.to_latex(("../tables/t_tests.tex"),index=False)
+    print("Successfully calculated statistics and exported to tables subfolder.")
 
     # Get genres from artists
     genres = get_top5_genres(spotify, tracks_mood_boosting)
@@ -123,7 +123,7 @@ def get_playlist_ids(df, category):
 
 
 def get_tracks_from_list_of_playlists(spotify, playlist_ids, group):
-    print_header("Get tracks from list of playlists for " + group)
+    print(f"Get tracks from list of playlists for {group}")
 
     tracks = []
     for playlist_id in playlist_ids:
@@ -271,7 +271,7 @@ def get_top5_genres(spotify, tracks):
         if genre in available_genres:
             genres.append(genre)
             counter += 1
-    print(f"Found {counter} genres: {genres}")
+    print(f"Found {counter} genres: {', '.join(genres)}")
     return genres
 
 
