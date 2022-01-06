@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Polancec"
+  given-names: "Ana"
+- family-names: "Stolk"
+  given-names: "Annemik"
+- family-names: "Hendriks"
+  given-names: "Geertje"
+- family-names: "Quach"
+  given-names: "Keven"
+- family-names: "Gerritse"
+  given-names: "Maarten"
+- family-names: "Ebbertz"
+  given-names: "Morice"
+title: "Computational analysis of audio feature information and their impact on emotion regulation"
+version: 1.0.0
+date-released: 2022-01-06
+url: "https://github.com/mebbertz/infomsmt-computational-analysis"
