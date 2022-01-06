@@ -89,7 +89,7 @@ def main():
     genres = get_top5_genres(spotify, tracks_mood_boosting)
 
     recommendations = get_recommendations(spotify, descriptive_statistics_df, genres)
-    pd.DataFrame(recommendations, columns = ["Artists", "Name", "Preview-URL", "Spotify-URL"]).to_csv("recommendations.csv", index=False)
+    pd.DataFrame(recommendations, columns = ["Artists", "Name", "Preview-URL", "Spotify-URL"]).to_csv("../recommendations.csv", index=False)
 
 ################################################################################
 # Functions
