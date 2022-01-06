@@ -82,4 +82,82 @@ python main.py --input ../other_file_name.csv
 
 TODO: Update example run when complete
 ```
+**************************************************
+Spotify Web API - Computational Analysis
+**************************************************
+
+**************************************************
+Parsing playlists
+**************************************************
+Get tracks from list of playlists for mood boosting
+Total number of tracks retrieved: 495
+Get tracks from list of playlists for running
+Total number of tracks retrieved: 502
+Get tracks from list of playlists for studying
+Total number of tracks retrieved: 505
+
+**************************************************
+Calculating statistics
+**************************************************
+Successfully calculated statistics and exported to tables subfolder.
+
+**************************************************
+Get top 5 genres
+**************************************************
+Total number of artists retrieved: 662
+Unique number of artists retrieved: 363
+Found 5 genres: pop, soul, edm, funk, disco
+
+**************************************************
+Get recommendations
+**************************************************
+Artists: Duke Dumont; Jax Jones
+Name: I Got U
+Preview-URL: None
+Spotify-URL: https://open.spotify.com/track/4r8hRPbidDIoDPphxi78aY
+
+Artists: Jess Glynne
+Name: All I Am
+Preview-URL: None
+Spotify-URL: https://open.spotify.com/track/5GNjiM8jZCgbqjHklAcT9e
+
+Artists: Thelma Houston
+Name: Don't Leave Me This Way - Single Version
+Preview-URL: None
+Spotify-URL: https://open.spotify.com/track/4IMArXimMttK8tB0UBa0Ue
+
+Artists: Britney Spears
+Name: Till the World Ends
+Preview-URL: https://p.scdn.co/mp3-preview/fd017ae5c0a60cff3d5f5b4d37c4e8617c93b11f?cid=33046789d13d49dda7597ce0554f1919
+Spotify-URL: https://open.spotify.com/track/38iU2jg98IZZEIJPrP7aWD
+
+Artists: Pitbull; Ne-Yo
+Name: Time of Our Lives
+Preview-URL: https://p.scdn.co/mp3-preview/c7ee72511ef4733508b42f92de3e62ed4753e223?cid=33046789d13d49dda7597ce0554f1919
+Spotify-URL: https://open.spotify.com/track/2bJvI42r8EF3wxjOuDav4r
+
+Artists: Flo Rida
+Name: I Cry
+Preview-URL: https://p.scdn.co/mp3-preview/83ecc26ad34e94df4a61ed9e44cdd3bacda81d6a?cid=33046789d13d49dda7597ce0554f1919
+Spotify-URL: https://open.spotify.com/track/3zrYNl1aMdFrQkcOjKVr5u
+
+Artists: Echosmith
+Name: Cool Kids
+Preview-URL: https://p.scdn.co/mp3-preview/27df0a89036135748fd03fb67114abeb00c529a4?cid=33046789d13d49dda7597ce0554f1919
+Spotify-URL: https://open.spotify.com/track/13P5rwmk2EsoFRIz9UCeh9
+
+Artists: Melanie Martinez
+Name: Dollhouse
+Preview-URL: https://p.scdn.co/mp3-preview/d98a9f944430689505c2ee20aa6180b6949830f0?cid=33046789d13d49dda7597ce0554f1919
+Spotify-URL: https://open.spotify.com/track/6wNeKPXF0RDKyvfKfri5hf
+
+Artists: Little Mix
+Name: Touch
+Preview-URL: None
+Spotify-URL: https://open.spotify.com/track/6B7op3kK1kFQp4Ck1UZtK5
+
+Artists: Martha Reeves & The Vandellas
+Name: Dancing In The Street
+Preview-URL: None
+Spotify-URL: https://open.spotify.com/track/6TPl5DQrkBY2XIqIaFmxqi
 ```

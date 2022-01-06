@@ -86,8 +86,8 @@ def main():
 
     t_test_adjusted_df = pd.DataFrame(t_test_list_adjusted, columns=["group", "feature", "p-value corrected", "p-value uncorrected", "t-value", "significant"])
     t_test_adjusted_df.to_latex(("../tables/t_tests.tex"),index=False)
+    print("Successfully calculated statistics and exported to tables subfolder.")
 
-    print_header('Getting recommendations')
     # get genres from artists 
     genres = get_top5_genres(spotify, tracks_mood_boosting)
 
@@ -104,7 +104,7 @@ def get_playlist_ids(df, category):
 
 
 def get_tracks_from_list_of_playlists(spotify, playlist_ids, group):
-    print_header("Get tracks from list of playlists for " + group)
+    print(f"Get tracks from list of playlists for {group}")
 
     tracks = []
     for playlist_id in playlist_ids:
