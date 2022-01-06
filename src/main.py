@@ -84,8 +84,8 @@ def main():
         t_test_list_adjusted.append([p_value_adjusted, p_value, t_value, feature, group])
 
     # Export statistics and t-test to .tex tables
-    descriptive_statistics_df = pd.DataFrame(descriptive_statistics_list, columns=["mean", "standard deviation", "standard error", "feature", "group"])
-    descriptive_statistics_df.to_latex(("../tables/statistics.tex"),index=False)
+    descriptive_statistics_df = pd.DataFrame(descriptive_statistics_list, columns=["group", "feature", "mean", "standard deviation", "standard error"])
+    descriptive_statistics_df.to_latex(("../tables/descriptive_statistics.tex"),index=False)
 
     t_test_adjusted_df = pd.DataFrame(t_test_list_adjusted, columns=["p-value corrected", "p-value uncorrected", "t-value", "feature", "group"])
     t_test_adjusted_df.to_latex(("../tables/t_tests.tex"),index=False)
@@ -217,7 +217,7 @@ def calculate_descriptive_statistics(track_features_map, desired_feature, group)
 
     # Print and return mean, standard deviation, and standard error
     print(f'M = {mean}, SD = {standard_deviation}, SE = {standard_error}')
-    return mean, standard_deviation, standard_error, desired_feature, group
+    return group, desired_feature, mean, standard_deviation, standard_error
 
 
 def t_test(track_features_map_one, track_features_map_two, desired_feature, group):
