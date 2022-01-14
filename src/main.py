@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.stats import (
     sem,
-    ttest_ind
+    # ttest_ind
 )
+from statsmodels.stats.weightstats import ttest_ind
 from statsmodels.sandbox.stats.multicomp import multipletests
 
 from display_utils import print_header
@@ -54,6 +55,7 @@ def main():
 
     descriptive_statistics_list = []
     t_test_list = []
+    t_test_list_detailed = []
     for desired_feature in desired_features:
         # Calculate descriptive statistics
         descriptive_statistics_list.append(
@@ -85,11 +87,10 @@ def main():
     p_values = [entry[0] for entry in t_test_list]
     # Create a list of the adjusted p-values
     p_adjusted = multipletests(p_values, alpha=.05, method='bonferroni')
-
     t_test_list_adjusted = []
     # create new list with added adjusted values
-    for (p_value, t_value, feature, group), significant, p_adjusted in zip(t_test_list, p_adjusted[0], p_adjusted[1]):
-        t_test_list_adjusted.append([group, feature, round(p_adjusted, 3), p_value, t_value, significant])
+    for (p_value, t_value, df, feature, group), significant, p_adjusted in zip(t_test_list, p_adjusted[0], p_adjusted[1]):
+        t_test_list_adjusted.append([group, feature, round(p_adjusted, 3), p_value, t_value, df, significant])
 
     # Export statistics and t-test to .tex tables
     descriptive_statistics_df = pd.DataFrame(
@@ -100,7 +101,7 @@ def main():
 
     t_test_adjusted_df = pd.DataFrame(
         t_test_list_adjusted,
-        columns=["group", "feature", "p-value corrected", "p-value uncorrected", "t-value", "significant"]
+        columns=["group", "feature", "p-value corrected", "p-value uncorrected", "t-value", "degrees of freedom", "significant"]
     )
 
     t_test_adjusted_df.to_latex("../tables/t_tests.tex", index=False)
@@ -250,11 +251,12 @@ def t_test(track_features_map_one, track_features_map_two, desired_feature, grou
     track_features_df_one = pd.DataFrame.from_dict(track_features_map_one, orient='index')
     track_features_df_two = pd.DataFrame.from_dict(track_features_map_two, orient='index')
 
-    t, p = ttest_ind(track_features_df_one[desired_feature], track_features_df_two[desired_feature], equal_var=False)
+    t, p, df = ttest_ind(track_features_df_one[desired_feature], track_features_df_two[desired_feature], usevar="unequal")
     t_rounded = round(t, 3)
     p_rounded = round(p, 10)
+    df_rounded = round(df)
     # print(f't = {t_rounded}  p = {p_rounded}')
-    return p_rounded, t_rounded, desired_feature, group
+    return p_rounded, t_rounded, df_rounded, desired_feature, group
 
 
 def get_top5_genres(spotify, tracks):
