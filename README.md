@@ -1,8 +1,6 @@
 # SMT project: Music recommendation and analysis <!-- omit in toc -->
 - [General information](#general-information)
   - [Abstract](#abstract)
-  - [The Spotify Web API](#the-spotify-web-api)
-  - [Spotipy](#spotipy)
   - [Citation](#citation)
 - [Setup](#setup)
   - [Register Your Application With Spotify](#register-your-application-with-spotify)
