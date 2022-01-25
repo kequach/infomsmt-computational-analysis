@@ -47,7 +47,9 @@ SPOTIPY_CLIENT_ID='YOUR_CLIENT_ID'
 SPOTIPY_CLIENT_SECRET='YOUR_CLIENT_SECRET'
 ```
 Here is an example screenshot of how this looks like:
+
 ![credentials](assets/spotify_credentials.png)
+
 For details about how the API authenticates your account with this, see
 https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
 
@@ -91,7 +93,10 @@ All-Nighter,https://open.spotify.com/playlist/37i9dQZF1DX692WcMwL2yW,studying
 ```
 
 Only link and category are needed. You can leave the playlist_name empty. The program assumes that there are 3 playlist categories provided:
-mood boosting, running, studying
+- mood boosting
+- running
+- studying
+
 At least one playlist in each category is necessary for the program to work. Mood boosting is the category which the recommendations will be based upon.
 
 It is also possible to use other .csv or .xlsx files. Here is an example. You need to specify the file name on the command line:
