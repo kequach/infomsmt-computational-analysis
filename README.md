@@ -1,7 +1,6 @@
 # SMT project: Music recommendation and analysis <!-- omit in toc -->
 - [General information](#general-information)
-  - [The Spotify Web API](#the-spotify-web-api)
-  - [Spotipy](#spotipy)
+  - [Abstract](#abstract)
   - [Citation](#citation)
 - [Setup](#setup)
   - [Register Your Application With Spotify](#register-your-application-with-spotify)
@@ -11,27 +10,14 @@
 
 This repository contains the code for the Sound and Music Technology Project in 2021 for group 2. The title of the corresponding paper is as follows: Computational analysis of audio feature information and their impact on emotion regulation.
 
-TODO: add abstract here
+
 
 ## General information
 
-The program output includes LaTeX tables with descriptive statistics and Bonferroni corrected t-tests, as well as the actual track recommendations based on the descriptive statistical values of extracted audio features.
+The program output includes LaTeX tables with descriptive statistics and Bonferroni corrected t-tests, as well as the actual track recommendations based on the descriptive statistical values of extracted audio features. The spotify API is used in this project.
 
-### The Spotify Web API
-The Spotify Web API allows applications to fetch lots of awesome data from the Spotify catalog, as well as manage
-a user's playlists and saved music.  Some examples of of info you get are:
-
-  - Track, artist, album, and playlist metadata and search
-  - High-level audio features for tracks
-  - In-depth audio analysis for tracks
-  - Featured playlists and new releases
-  - Music recommendations based on seed data
-
-### Spotipy
-
-Spotipy is an awesome lightweight Python wrapper library for the Spotify Web API.  Using Spotipy, you can get any information
-that you can get through the raw Web API.  The library does a bunch of the heavy lifting for things like authenticating
-against the API, serializing request data, and deserialzing response data.
+### Abstract
+Emotional self-regulation is acknowledged as one of the most important reasons for musical engagement at all ages. Several studies proved the importance of music in emotion regulation. The aim of this study is to further investigate the audio features of songs that could be used for promoting positive mood and to build a content-based recommender system that produces a list of song recommendations based on the most important features of songs that promote a positive mood. The features with most importance are valence, danceability, energy, loudness, speechiness and tempo which is expected and in line with previous work done in the field and extends the valence-arousal model by Russell with other features that could serve for mood classification. 
 
 ### Citation
 
